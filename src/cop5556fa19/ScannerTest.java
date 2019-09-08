@@ -112,5 +112,18 @@ class ScannerTest {
 		assertEquals(t.kind,REL_EQEQ);
 		assertEquals(t.text,"==");
 	}
+	
+	@Test 
+	void test4() throws Exception {
+		Reader r = new StringReader("00");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext());
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
 
 }

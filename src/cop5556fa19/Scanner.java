@@ -24,6 +24,9 @@ import java.io.Reader;
 public class Scanner {
 	
 	Reader r;
+	int chr;
+	int lin;
+	int nextChr;
 
 
 	@SuppressWarnings("serial")
@@ -35,13 +38,32 @@ public class Scanner {
 	
 	public Scanner(Reader r) throws IOException {
 		this.r = r;
+		this.chr = 0;
+		this.lin = 0;
 	}
 
 
 	public Token getNext() throws Exception {
-		    //replace this code.  Just for illustration
-		    if (r.read() == -1) { return new Token(EOF,"eof",0,0);}
+			int inputChr;
+			String tok="";
+			
+			// Consume all whitespace prior to a character
+			do {
+				inputChr = r.read();
+				chr++;
+				if(inputChr=='\n')
+				{
+					chr=0;
+					lin++;
+				}
+			}while(Character.isWhitespace(inputChr));
+			
+			// If it is the ending to a file, then return EOF token
+			if(inputChr==-1) { return new Token(EOF,"eof",chr,lin); }
+
+			// Zero on its own is a token
+			if(inputChr=='0') { return new Token(INTLIT,String.valueOf(inputChr),chr++,lin); }
+
 			throw new LexicalException("Useful error message");
 		}
-
 }
