@@ -20,7 +20,6 @@ import static cop5556fa19.Token.Kind.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.FileSystems;
 
 public class Scanner {
 	
@@ -61,10 +60,17 @@ public class Scanner {
 					inputChr = nextChr;
 					nextChr=-2;
 				}
-				if(inputChr=='\n')
+				if(inputChr=='\n' || inputChr=='\r')
 				{
 					chr=0;
 					lin++;
+					if(inputChr == '\r')
+					{
+						inputChr=r.read();
+						chr++;
+						if(inputChr!='\n')
+							nextChr=inputChr;
+					}
 				}
 			}while(Character.isWhitespace(inputChr));
 			if(inputChr!=-1) { tok += Character.toString(inputChr); }
