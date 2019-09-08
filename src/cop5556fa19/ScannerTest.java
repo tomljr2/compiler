@@ -206,4 +206,70 @@ class ScannerTest {
 		show(t= s.getNext()); 
 		assertEquals(EOF, t.kind);
 	}
+	
+	@Test 
+	void test7() throws Exception {
+		Reader r = new StringReader("11//45+06/8-76*4\n"
+				+ "%^#&~|>><<<//>===~=<=>==");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext());
+		assertEquals(OP_DIVDIV, t.kind);
+		show(t= s.getNext());
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_PLUS, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_DIV, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_MINUS, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_TIMES, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_MOD, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_POW, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_HASH, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(BIT_AMP, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(BIT_XOR, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(BIT_OR, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(BIT_SHIFTR, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(BIT_SHIFTL, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(REL_LT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_DIVDIV, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(REL_GE, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(REL_EQEQ, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(REL_NOTEQ, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(REL_LE, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(REL_GE, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(ASSIGN, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
 }

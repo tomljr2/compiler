@@ -48,7 +48,7 @@ public class Scanner {
 			int inputChr;
 			String tok="";
 			
-			
+			//======================== WHITESPACE ========================//
 			
 			// Consume all whitespace prior to a character
 			do {
@@ -66,17 +66,21 @@ public class Scanner {
 					lin++;
 				}
 			}while(Character.isWhitespace(inputChr));
+			if(inputChr!=-1) { tok += Character.toString(inputChr); }
+			
+			//======================== EOF ========================//
 			
 			// If it is the ending to a file, then return EOF token
 			if(inputChr==-1) { return new Token(EOF,"eof",chr,lin); }
 
+			//======================== INTEGER LITERALS ========================//
+			
 			// Zero on its own is a token
-			if(inputChr=='0') { return new Token(INTLIT,Character.toString(inputChr),chr++,lin); }
+			if(inputChr=='0') { return new Token(INTLIT,tok,chr++,lin); }
 			
 			// Zero on it's own should never get here.
 			if(Character.isDigit(inputChr))
 			{
-				tok += Character.toString(inputChr);
 				while(true)
 				{
 					nextChr=r.read();
@@ -89,10 +93,11 @@ public class Scanner {
 				}
 			}
 			
+			//======================== IDENTIFIERS / KEYWORDS ========================//
+			
 			// Check for an identifier start
 			if(Character.isLetter(inputChr))
 			{
-				tok += Character.toString(inputChr);
 				while(true)
 				{
 					nextChr=r.read();
@@ -133,7 +138,96 @@ public class Scanner {
 						}
 					}
 				}
+				
 			}
+			
+			//======================== ARITHMETIC, BITWISE, CONDITONAL OPERATORS ========================//
+			
+			// The operators are pretty easy to handle
+			if(inputChr=='+'){ return new Token(OP_PLUS,tok,chr++,lin); }
+			if(inputChr=='-'){ return new Token(OP_MINUS,tok,chr++,lin); }
+			if(inputChr=='*'){ return new Token(OP_TIMES,tok,chr++,lin); }
+			if(inputChr=='/')
+			{
+				nextChr=r.read();
+				if(nextChr=='/')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(OP_DIVDIV,tok,chr++,lin);
+				}
+				else{ return new Token(OP_DIV,tok,chr++,lin); }
+			}
+			if(inputChr=='%'){ return new Token(OP_MOD,tok,chr++,lin); }
+			if(inputChr=='^'){ return new Token(OP_POW,tok,chr++,lin); }
+			if(inputChr=='#'){ return new Token(OP_HASH,tok,chr++,lin); }
+			if(inputChr=='&'){ return new Token(BIT_AMP,tok,chr++,lin); }
+			if(inputChr=='~')
+			{
+				nextChr=r.read();
+				if(nextChr=='=')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(REL_NOTEQ,tok,chr++,lin);
+				}
+				else{ return new Token(BIT_XOR,tok,chr++,lin); }
+			}
+			if(inputChr=='|'){ return new Token(BIT_OR,tok,chr++,lin); }
+			if(inputChr=='<')
+			{
+				nextChr=r.read();
+				if(nextChr=='<')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(BIT_SHIFTL,tok,chr++,lin);
+				}
+				else if(nextChr=='=')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(REL_LE,tok,chr++,lin);
+				}
+				else{ return new Token(REL_LT,tok,chr++,lin); }
+			}
+			if(inputChr=='>')
+			{
+				nextChr=r.read();
+				if(nextChr=='>')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(BIT_SHIFTR,tok,chr++,lin);
+				}
+				else if(nextChr=='=')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(REL_GE,tok,chr++,lin);
+				}
+				else{ return new Token(REL_GT,tok,chr++,lin); }
+			}
+			if(inputChr=='=')
+			{
+				nextChr=r.read();
+				if(nextChr=='=')
+				{
+					tok+=nextChr;
+					chr+=2;
+					nextChr=-2;
+					return new Token(REL_EQEQ,tok,chr++,lin);
+				}
+				else{ return new Token(ASSIGN,tok,chr++,lin); }
+			}
+			
+			//======================== OTHER SYMBOLS ========================//
 
 			throw new LexicalException("Useful error message");
 		}
