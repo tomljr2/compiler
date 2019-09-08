@@ -40,6 +40,7 @@ public class Scanner {
 		this.r = r;
 		this.chr = 0;
 		this.lin = 0;
+		this.nextChr=-2;
 	}
 
 
@@ -47,10 +48,18 @@ public class Scanner {
 			int inputChr;
 			String tok="";
 			
+			
+			
 			// Consume all whitespace prior to a character
 			do {
-				inputChr = r.read();
-				chr++;
+				// If there was a character that needed to be picked up from the last
+				// token scan, then it needs we  shouldn't read a new one yet
+				if(nextChr==-2){ inputChr = r.read(); chr++; }
+				else
+				{
+					inputChr = nextChr;
+					nextChr=-2;
+				}
 				if(inputChr=='\n')
 				{
 					chr=0;
@@ -62,7 +71,69 @@ public class Scanner {
 			if(inputChr==-1) { return new Token(EOF,"eof",chr,lin); }
 
 			// Zero on its own is a token
-			if(inputChr=='0') { return new Token(INTLIT,String.valueOf(inputChr),chr++,lin); }
+			if(inputChr=='0') { return new Token(INTLIT,Character.toString(inputChr),chr++,lin); }
+			
+			// Zero on it's own should never get here.
+			if(Character.isDigit(inputChr))
+			{
+				tok += Character.toString(inputChr);
+				while(true)
+				{
+					nextChr=r.read();
+					if(Character.isDigit(nextChr))
+					{
+						chr++;
+						tok+=Character.toString(nextChr);
+					}
+					else { return new Token(INTLIT,tok,chr++,lin); }
+				}
+			}
+			
+			// Check for an identifier start
+			if(Character.isLetter(inputChr))
+			{
+				tok += Character.toString(inputChr);
+				while(true)
+				{
+					nextChr=r.read();
+					if(Character.isLetterOrDigit(nextChr) || nextChr =='_' || nextChr=='$')
+					{
+						chr++;
+						tok+=Character.toString(nextChr);
+					}
+					else 
+					{
+						// Check if an identifier is a keyword, and return the correct
+						// token
+						switch(tok)
+						{
+							case "and": return new Token(KW_and,tok,chr++,lin);
+							case "break": return new Token(KW_break,tok,chr++,lin);
+							case "do": return new Token(KW_do,tok,chr++,lin);
+							case "else": return new Token(KW_else,tok,chr++,lin);
+							case "elseif": return new Token(KW_elseif,tok,chr++,lin);
+							case "end": return new Token(KW_end,tok,chr++,lin);
+							case "false": return new Token(KW_false,tok,chr++,lin);
+							case "for": return new Token(KW_for,tok,chr++,lin);
+							case "function": return new Token(KW_function,tok,chr++,lin);
+							case "goto": return new Token(KW_goto,tok,chr++,lin);
+							case "if": return new Token(KW_if,tok,chr++,lin);
+							case "in": return new Token(KW_in,tok,chr++,lin);
+							case "local": return new Token(KW_local,tok,chr++,lin);
+							case "nil": return new Token(KW_nil,tok,chr++,lin);
+							case "not": return new Token(KW_not,tok,chr++,lin);
+							case "or": return new Token(KW_or,tok,chr++,lin);
+							case "repeat": return new Token(KW_repeat,tok,chr++,lin);
+							case "return": return new Token(KW_return,tok,chr++,lin);
+							case "then": return new Token(KW_then,tok,chr++,lin);
+							case "true": return new Token(KW_true,tok,chr++,lin);
+							case "until": return new Token(KW_until,tok,chr++,lin);
+							case "while": return new Token(KW_while,tok,chr++,lin);
+							default: return new Token(NAME,tok,chr++,lin);
+						}
+					}
+				}
+			}
 
 			throw new LexicalException("Useful error message");
 		}

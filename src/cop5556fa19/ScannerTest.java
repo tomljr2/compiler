@@ -126,4 +126,84 @@ class ScannerTest {
 		assertEquals(EOF, t.kind);
 	}
 
+	@Test 
+	void test5() throws Exception {
+		Reader r = new StringReader("0100 143\n65");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext());
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext());
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
+	
+	@Test 
+	void test6() throws Exception {
+		Reader r = new StringReader("0123abc andbreak and\nbreak "
+				+ "do else elseif end false for function goto if "
+				+ "in local nil not or repeat return then true  \n "
+				+ "until while");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext());
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext());
+		assertEquals(NAME, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(NAME, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_and, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_break, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_do, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_else, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_elseif, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_end, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_false, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_for, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_function, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_goto, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_if, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_in, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_local, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_nil, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_not, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_or, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_repeat, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_return, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_then, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_true, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_until, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(KW_while, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
 }
