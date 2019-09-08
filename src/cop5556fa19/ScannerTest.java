@@ -78,7 +78,7 @@ class ScannerTest {
 	 */
 	@Test
 	void test2() throws Exception {
-		String file = "testInputFiles\\test2.input"; 
+		String file = "testInputFiles/test2.input"; 
 		Reader r = new BufferedReader(new FileReader(file));
 		Scanner s = new Scanner(r);
         assertThrows(LexicalException.class, ()->{
@@ -269,6 +269,45 @@ class ScannerTest {
 		assertEquals(REL_GE, t.kind);
 		show(t= s.getNext()); 
 		assertEquals(ASSIGN, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
+	
+	@Test 
+	void test8() throws Exception {
+		Reader r = new StringReader("][(}){:::;.,...../.");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(RSQUARE, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(LSQUARE, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(LPAREN, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(RCURLY, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(RPAREN, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(LCURLY, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(COLONCOLON, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(COLON, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(SEMI, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(DOT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(COMMA, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(DOTDOTDOT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(DOTDOT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_DIV, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(DOT, t.kind);
 		show(t= s.getNext()); 
 		assertEquals(EOF, t.kind);
 	}

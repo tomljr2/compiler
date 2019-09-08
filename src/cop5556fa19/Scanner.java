@@ -17,9 +17,10 @@ package cop5556fa19;
 
 import static cop5556fa19.Token.Kind.*;
 
-
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.FileSystems;
 
 public class Scanner {
 	
@@ -152,8 +153,8 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='/')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(OP_DIVDIV,tok,chr++,lin);
 				}
@@ -168,8 +169,8 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='=')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(REL_NOTEQ,tok,chr++,lin);
 				}
@@ -181,15 +182,15 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='<')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(BIT_SHIFTL,tok,chr++,lin);
 				}
 				else if(nextChr=='=')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(REL_LE,tok,chr++,lin);
 				}
@@ -200,15 +201,15 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='>')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(BIT_SHIFTR,tok,chr++,lin);
 				}
 				else if(nextChr=='=')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(REL_GE,tok,chr++,lin);
 				}
@@ -219,8 +220,8 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='=')
 				{
-					tok+=nextChr;
-					chr+=2;
+					tok+=Character.toString(nextChr);
+					chr++;
 					nextChr=-2;
 					return new Token(REL_EQEQ,tok,chr++,lin);
 				}
@@ -228,7 +229,52 @@ public class Scanner {
 			}
 			
 			//======================== OTHER SYMBOLS ========================//
-
-			throw new LexicalException("Useful error message");
+			
+			// These should work similarly to the operators
+			if(inputChr=='('){ return new Token(LPAREN,tok,chr++,lin); }
+			if(inputChr==')'){ return new Token(RPAREN,tok,chr++,lin); }
+			if(inputChr=='{'){ return new Token(LCURLY,tok,chr++,lin); }
+			if(inputChr=='}'){ return new Token(RCURLY,tok,chr++,lin); }
+			if(inputChr=='['){ return new Token(LSQUARE,tok,chr++,lin); }
+			if(inputChr==']'){ return new Token(RSQUARE,tok,chr++,lin); }
+			if(inputChr==':')
+			{
+				nextChr=r.read();
+				if(nextChr==':')
+				{
+					tok+=Character.toString(nextChr);
+					chr++;
+					nextChr=-2;
+					return new Token(COLONCOLON,tok,chr++,lin);
+				}
+				else{ return new Token(COLON,tok,chr++,lin); }
+			}
+			if(inputChr==';'){ return new Token(SEMI,tok,chr++,lin); }
+			if(inputChr==','){ return new Token(COMMA,tok,chr++,lin); }
+			if(inputChr=='.')
+			{
+				nextChr=r.read();
+				if(nextChr=='.')
+				{
+					tok+=Character.toString(nextChr);
+					chr++;
+					nextChr=r.read();
+					if(nextChr=='.')
+					{
+						tok+=Character.toString(nextChr);
+						chr++;
+						nextChr=-2;
+						return new Token(DOTDOTDOT,tok,chr++,lin);
+					}
+					else{ return new Token(DOTDOT,tok,chr++,lin); }
+				}
+				else{ return new Token(DOT,tok,chr++,lin); }
+			}
+			
+			System.out.println(new File(".").getCanonicalPath());
+			
+			throw new LexicalException("Lexical Exception at line " +
+			                           lin + " character " + chr + ". Invalid"
+			                           		+ "token: " + Character.toString(inputChr));
 		}
 }
