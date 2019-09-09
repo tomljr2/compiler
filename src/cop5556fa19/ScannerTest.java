@@ -311,4 +311,24 @@ class ScannerTest {
 		show(t= s.getNext()); 
 		assertEquals(EOF, t.kind);
 	}
+	
+	@Test 
+	void test9() throws Exception {
+		Reader r = new StringReader("2147483647");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
+
+	@Test
+	void test10() throws Exception {
+		Reader r = new StringReader("2147483648");
+		Scanner s = new Scanner(r);
+        assertThrows(LexicalException.class, ()->{
+		   s.getNext();
+        });
+	}
 }

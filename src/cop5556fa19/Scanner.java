@@ -96,7 +96,19 @@ public class Scanner {
 						chr++;
 						tok+=Character.toString(nextChr);
 					}
-					else { return new Token(INTLIT,tok,chr++,lin); }
+					else 
+					{ 
+						try{
+							Integer.parseInt(tok);
+						}
+						catch(NumberFormatException e)
+						{
+							throw new LexicalException("Lexical Exception at line " +
+			                           lin + " character " + chr + ". Invalid"
+			                           		+ " integer : " + tok + "\nThis number is too large or small.");
+						}
+						return new Token(INTLIT,tok,chr++,lin); 
+					}
 				}
 			}
 			
@@ -280,7 +292,7 @@ public class Scanner {
 			System.out.println(new File(".").getCanonicalPath());
 			
 			throw new LexicalException("Lexical Exception at line " +
-			                           lin + " character " + chr + ". Invalid"
+			                           lin + " character " + chr + ". Invalid "
 			                           		+ "token: " + Character.toString(inputChr));
 		}
 }
