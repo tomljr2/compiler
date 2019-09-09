@@ -73,7 +73,7 @@ public class Scanner {
 					}
 				}
 			}while(Character.isWhitespace(inputChr));
-			if(inputChr!=-1) { tok += Character.toString(inputChr); }
+			if(inputChr!=-1) { tok += Character.toString((char)inputChr); }
 			
 			//======================== COMMENTS ========================//
 			
@@ -129,7 +129,7 @@ public class Scanner {
 					if(Character.isDigit(nextChr))
 					{
 						chr++;
-						tok+=Character.toString(nextChr);
+						tok+=Character.toString((char)nextChr);
 					}
 					else 
 					{ 
@@ -159,7 +159,7 @@ public class Scanner {
 					if(Character.isLetterOrDigit(nextChr) || nextChr =='_' || nextChr=='$')
 					{
 						chr++;
-						tok+=Character.toString(nextChr);
+						tok+=Character.toString((char)nextChr);
 					}
 					else 
 					{
@@ -207,7 +207,7 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='/')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(OP_DIVDIV,tok,chr++,lin);
@@ -223,7 +223,7 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='=')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(REL_NOTEQ,tok,chr++,lin);
@@ -236,14 +236,14 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='<')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(BIT_SHIFTL,tok,chr++,lin);
 				}
 				else if(nextChr=='=')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(REL_LE,tok,chr++,lin);
@@ -255,14 +255,14 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='>')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(BIT_SHIFTR,tok,chr++,lin);
 				}
 				else if(nextChr=='=')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(REL_GE,tok,chr++,lin);
@@ -274,7 +274,7 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='=')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(REL_EQEQ,tok,chr++,lin);
@@ -296,7 +296,7 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr==':')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=-2;
 					return new Token(COLONCOLON,tok,chr++,lin);
@@ -310,12 +310,12 @@ public class Scanner {
 				nextChr=r.read();
 				if(nextChr=='.')
 				{
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					nextChr=r.read();
 					if(nextChr=='.')
 					{
-						tok+=Character.toString(nextChr);
+						tok+=Character.toString((char)nextChr);
 						chr++;
 						nextChr=-2;
 						return new Token(DOTDOTDOT,tok,chr++,lin);
@@ -335,24 +335,24 @@ public class Scanner {
 				{
 					if(prev!='\\' && nextChr=='\"')
 					{
-						tok+=Character.toString(nextChr);
+						tok+=Character.toString((char)nextChr);
 						break;
 					}
 					prev=nextChr;
 					nextChr=r.read();
-					tok+=Character.toString(nextChr);
+					tok+=Character.toString((char)nextChr);
 					chr++;
 					if(nextChr=='\'' && prev != '\\')
 						throw new LexicalException("Lexical Exception at line "
 								+ lin + " character " + chr + ". Invalid character in "
-										+ " string literal: " + Character.toString(nextChr));
+										+ " string literal: " + Character.toString((char)nextChr));
 					if(prev=='\\' && (nextChr!='a' && nextChr!='b' && nextChr!='f' && nextChr !='n' &&
 							          nextChr!='r' && nextChr!='t' && nextChr!='v' && nextChr !='\\' &&
 							          nextChr!='\"'&& nextChr!='\''))
 					{
 						throw new LexicalException("Lexical Exception at line "
 								+ lin + " character " + chr + ". Invalid character in "
-										+ " string literal: \\" + Character.toString(nextChr));
+										+ " string literal: \\" + Character.toString((char)nextChr));
 					}
 				}
 				nextChr=-2;
@@ -367,24 +367,24 @@ public class Scanner {
 							{
 								if(prev!='\\' && nextChr=='\'')
 								{
-									tok+=Character.toString(nextChr);
+									tok+=Character.toString((char)nextChr);
 									break;
 								}
 								prev=nextChr;
 								nextChr=r.read();
-								tok+=Character.toString(nextChr);
+								tok+=Character.toString((char)nextChr);
 								chr++;
 								if(nextChr=='\"' && prev != '\\')
 									throw new LexicalException("Lexical Exception at line "
 											+ lin + " character " + chr + ". Invalid character in "
-													+ " string literal: " + Character.toString(nextChr));
+													+ " string literal: " + Character.toString((char)nextChr));
 								if(prev=='\\' && (nextChr!='a' && nextChr!='b' && nextChr!='f' && nextChr !='n' &&
 										          nextChr!='r' && nextChr!='t' && nextChr!='v' && nextChr !='\\' &&
 										          nextChr!='\"'&& nextChr!='\''))
 								{
 									throw new LexicalException("Lexical Exception at line "
 											+ lin + " character " + chr + ". Invalid character in "
-													+ " string literal: \\" + Character.toString(nextChr));
+													+ " string literal: \\" + Character.toString((char)nextChr));
 								}
 							}
 							nextChr=-2;
@@ -394,6 +394,6 @@ public class Scanner {
 			
 			throw new LexicalException("Lexical Exception at line " +
 			                           lin + " character " + chr + ". Invalid "
-			                           		+ "token: " + Character.toString(inputChr));
+			                           		+ "token: " + Character.toString((char)inputChr));
 		}
 }
