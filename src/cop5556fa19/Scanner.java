@@ -324,8 +324,73 @@ public class Scanner {
 				}
 				else{ return new Token(DOT,tok,chr++,lin); }
 			}
+	
+			//======================== STRING LITERALS ========================//
 			
-			System.out.println(new File(".").getCanonicalPath());
+			// Just loop through until I see an invalid character or another "
+			if(inputChr=='\"')
+			{
+				int prev=-2;
+				while(true)
+				{
+					if(prev!='\\' && nextChr=='\"')
+					{
+						tok+=Character.toString(nextChr);
+						break;
+					}
+					prev=nextChr;
+					nextChr=r.read();
+					tok+=Character.toString(nextChr);
+					chr++;
+					if(nextChr=='\'' && prev != '\\')
+						throw new LexicalException("Lexical Exception at line "
+								+ lin + " character " + chr + ". Invalid character in "
+										+ " string literal: " + Character.toString(nextChr));
+					if(prev=='\\' && (nextChr!='a' && nextChr!='b' && nextChr!='f' && nextChr !='n' &&
+							          nextChr!='r' && nextChr!='t' && nextChr!='v' && nextChr !='\\' &&
+							          nextChr!='\"'&& nextChr!='\''))
+					{
+						throw new LexicalException("Lexical Exception at line "
+								+ lin + " character " + chr + ". Invalid character in "
+										+ " string literal: \\" + Character.toString(nextChr));
+					}
+				}
+				nextChr=-2;
+				return new Token(STRINGLIT,tok,chr++,lin);
+			}
+			
+			// Just loop through until I see an invalid character or another '
+						if(inputChr=='\'')
+						{
+							int prev=-2;
+							while(true)
+							{
+								if(prev!='\\' && nextChr=='\'')
+								{
+									tok+=Character.toString(nextChr);
+									break;
+								}
+								prev=nextChr;
+								nextChr=r.read();
+								tok+=Character.toString(nextChr);
+								chr++;
+								if(nextChr=='\"' && prev != '\\')
+									throw new LexicalException("Lexical Exception at line "
+											+ lin + " character " + chr + ". Invalid character in "
+													+ " string literal: " + Character.toString(nextChr));
+								if(prev=='\\' && (nextChr!='a' && nextChr!='b' && nextChr!='f' && nextChr !='n' &&
+										          nextChr!='r' && nextChr!='t' && nextChr!='v' && nextChr !='\\' &&
+										          nextChr!='\"'&& nextChr!='\''))
+								{
+									throw new LexicalException("Lexical Exception at line "
+											+ lin + " character " + chr + ". Invalid character in "
+													+ " string literal: \\" + Character.toString(nextChr));
+								}
+							}
+							nextChr=-2;
+							return new Token(STRINGLIT,tok,chr++,lin);
+						}
+			
 			
 			throw new LexicalException("Lexical Exception at line " +
 			                           lin + " character " + chr + ". Invalid "

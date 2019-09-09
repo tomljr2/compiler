@@ -348,4 +348,28 @@ class ScannerTest {
 		show(t= s.getNext()); 
 		assertEquals(EOF, t.kind);
 	}
+	
+	@Test
+	void test12() throws Exception {
+		String str = "\"fdsjhdf79sd7fdujk dfs8uifds\\a\\b\\f\\n\\r\\t\\v\\\"\"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(STRINGLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
+	
+	@Test
+	void test13() throws Exception {
+		String str = "\'fdsjhdf79sd7fdujk dfs8uifds\\a\\b\\f\\n\\r\\t\\v\\\"\'";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(STRINGLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
 }
