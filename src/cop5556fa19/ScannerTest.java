@@ -372,4 +372,37 @@ class ScannerTest {
 		show(t= s.getNext()); 
 		assertEquals(EOF, t.kind);
 	}
+	
+	@Test
+	void test14() throws Exception {
+		String str = "\' \\ \'";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+        assertThrows(LexicalException.class, ()->{
+		   s.getNext();
+        });
+	}
+	
+	@Test
+	void test15() throws Exception {
+		String str = "\' \" \'";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+        assertThrows(LexicalException.class, ()->{
+		   s.getNext();
+        });
+	}
+	
+	@Test
+	void test16() throws Exception {
+		String str = "\" \' \"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+        assertThrows(LexicalException.class, ()->{
+		   s.getNext();
+        });
+	}
 }
