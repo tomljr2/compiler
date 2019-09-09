@@ -331,4 +331,21 @@ class ScannerTest {
 		   s.getNext();
         });
 	}
+	
+	@Test
+	void test11() throws Exception {
+		Reader r = new StringReader("--asdlkjsdlkja\ntest 1-40--1\r\n--5");
+		Scanner s = new Scanner(r);
+		Token t;
+		show(t= s.getNext()); 
+		assertEquals(NAME, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(OP_MINUS, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(INTLIT, t.kind);
+		show(t= s.getNext()); 
+		assertEquals(EOF, t.kind);
+	}
 }

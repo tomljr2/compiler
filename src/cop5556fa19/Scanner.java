@@ -75,6 +75,41 @@ public class Scanner {
 			}while(Character.isWhitespace(inputChr));
 			if(inputChr!=-1) { tok += Character.toString(inputChr); }
 			
+			//======================== COMMENTS ========================//
+			
+			// Consume all comments prior to a token
+			if(inputChr=='-')
+			{
+				nextChr=r.read();
+				chr++;
+				if(nextChr=='-')
+				{
+					while(nextChr!='\n' && nextChr!='\r' && nextChr!=-1)
+					{
+						nextChr=r.read();
+						chr++;
+					}
+					if(nextChr==-1)
+						inputChr=-1;
+					else
+					{
+						chr=0;
+						lin++;
+						int temp = nextChr;
+						nextChr=r.read();
+						chr++;
+						if(temp=='\r' && nextChr=='\n')
+						{
+							chr++;
+							nextChr=r.read();
+						}
+						return getNext();	// Some fancy recursion
+						
+					}
+				}
+			}
+			
+			
 			//======================== EOF ========================//
 			
 			// If it is the ending to a file, then return EOF token
@@ -98,6 +133,7 @@ public class Scanner {
 					}
 					else 
 					{ 
+						// If the intlit is out of java bounds, throw an exception
 						try{
 							Integer.parseInt(tok);
 						}
