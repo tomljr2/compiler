@@ -78,7 +78,7 @@ class ScannerTest {
 	 */
 	@Test
 	void test2() throws Exception {
-		String file = "testInputFiles/test2.input"; 
+		String file = "src/testInputFiles/test2.input"; 
 		Reader r = new BufferedReader(new FileReader(file));
 		Scanner s = new Scanner(r);
         assertThrows(LexicalException.class, ()->{
@@ -408,7 +408,7 @@ class ScannerTest {
 	
 	@Test
 	void test17() throws Exception {
-		String file = "testInputFiles/test3.input"; 
+		String file = "src/testInputFiles/test3.input"; 
 		Reader r = new BufferedReader(new FileReader(file));
 		Scanner s = new Scanner(r);
 		Token t;
