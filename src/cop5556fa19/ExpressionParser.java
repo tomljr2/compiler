@@ -63,17 +63,86 @@ public class ExpressionParser {
 
 	Exp exp() throws Exception {
 		Token first = t;
-		Exp e0 = andExp();
-		while (isKind(KW_or)) {
+		Exp e0=null;
+		/*while (isKind(KW_or)) {
 			Token op = consume();
 			Exp e1 = andExp();
 			e0 = new ExpBinary(first, e0, op, e1);
+		}*/
+		Token r;
+		if(isKind(KW_nil))
+		{
+			r=match(KW_nil);
+			e0 = new ExpNil(first);
 		}
+		else if(isKind(KW_false))
+		{
+			r=match(KW_false);
+			e0 = new ExpFalse(first);
+		}
+		else if(isKind(KW_true))
+		{
+			r=match(KW_true);
+			e0 = new ExpTrue(first);
+		}
+		else if(isKind(INTLIT))
+		{
+			r=match(INTLIT);
+			e0 = new ExpInt(first);
+		}
+		else if(isKind(STRINGLIT))
+		{
+			r=match(STRINGLIT);
+			e0 = new ExpString(first);
+		}
+		else if(isKind(DOTDOTDOT))
+		{
+			r=match(DOTDOTDOT);
+			e0 = new ExpVarArgs(first);
+		}
+		else if(isKind(KW_function))
+		{
+			e0 = functiondef();
+		}
+		else
+		{ e0=andExp(); }
 		return e0;
 	}
 
+	private Exp functiondef() throws Exception
+	{
+		Token first = t;
+		Token r=match(KW_function);
+		FuncBody fb = functionbody();
+		return new ExpFunction(first,fb);
+	}
 	
-private Exp andExp() throws Exception{
+	private FuncBody functionbody() throws Exception
+	{
+		Token first = t;
+		Token r = match(LPAREN);
+		ParList pl=null;
+		if(t.kind!=RPAREN)
+		{
+			List<Name> list = new ArrayList<Name>();
+			list.add(new Name(t,t.text));
+			pl=parlist(list,false);
+			r=match(NAME);
+		}
+		r=match(RPAREN);
+		Block b = block();
+		r=match(KW_end);
+		
+		return new FuncBody(first,pl,b);
+	}
+	
+	private ParList parlist(List<Name> l, boolean hasVar) throws Exception
+	{
+		Token first = t;
+		return new ParList(first,l,hasVar);
+	}
+	
+	private Exp andExp() throws Exception{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("andExp");  //I find this is a more useful placeholder than returning null.
 	}

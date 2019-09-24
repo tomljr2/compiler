@@ -82,13 +82,42 @@ class ExpressionParserTest {
 		assertEquals(ExpName.class, e.getClass());
 		assertEquals("x", ((ExpName) e).name);
 	}
+	
+	@Test
+	void testIdent2() throws Exception {
+		String input = "nil";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpNil.class, e.getClass());
+	}
+	
+	@Test
+	void testIntLit0() throws Exception {
+		String input = "0";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpInt.class, e.getClass());
+	}
+	
+	@Test
+	void testIntLit1() throws Exception {
+		String input = "123";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpInt.class, e.getClass());
+	}
 
 	@Test
-	void testString() throws Exception {
+	void testString0() throws Exception {
 		String input = "\"string\"";
 		Exp e = parseAndShow(input);
 		assertEquals(ExpString.class, e.getClass());
 		assertEquals("string", ((ExpString) e).v);
+	}
+
+	@Test
+	void testString1() throws Exception {
+		String input = "\'string test 1\'";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpString.class, e.getClass());
+		assertEquals("string test 1", ((ExpString) e).v);
 	}
 
 	@Test
@@ -103,6 +132,20 @@ class ExpressionParserTest {
 		String input = "false";
 		Exp e = parseAndShow(input);
 		assertEquals(ExpFalse.class, e.getClass());
+	}
+
+	@Test
+	void testFunc0() throws Exception {
+		String input = "function()\nend";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpFunction.class, e.getClass());
+	}
+
+	@Test
+	void testFunc1() throws Exception {
+		String input = "function(test)\nend";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpFunction.class, e.getClass());
 	}
 
 

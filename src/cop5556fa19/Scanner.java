@@ -356,7 +356,7 @@ public class Scanner {
 					}
 				}
 				nextChr=-2;
-				return new Token(STRINGLIT,tok,chr++,lin);
+				return new Token(STRINGLIT,tok.substring(1,tok.length()-2),chr++,lin);
 			}
 			
 			// Just loop through until I see an invalid character or another '
@@ -388,7 +388,7 @@ public class Scanner {
 								}
 							}
 							nextChr=-2;
-							return new Token(STRINGLIT,tok,chr++,lin);
+							return new Token(STRINGLIT,tok.substring(1,tok.length()-2),chr++,lin);
 						}
 			
 			
