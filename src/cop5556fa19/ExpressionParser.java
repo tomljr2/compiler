@@ -106,9 +106,64 @@ public class ExpressionParser {
 		{ e0 = prefixexp(); }
 		else if(isKind(LCURLY))
 		{ e0 = tableconstructor(); }
+		else if(isUnaryOp())
+		{
+			Kind k = unop();
+			Exp e = exp();
+			e0 = new ExpUnary(first,k,e);
+		}
 		else
-		{ e0=andExp(); }
+		{ error(first,first.text); }
 		return e0;
+	}
+	
+	private Kind unop() throws Exception
+	{
+		Token r;
+		Kind k=null;
+		if(isKind(OP_MINUS))
+		{
+			r = match(OP_MINUS);
+			k = OP_MINUS;
+		}
+		else if(isKind(KW_not))
+		{
+			r = match(KW_not);
+			k = KW_not;
+		}
+		else if(isKind(OP_HASH))
+		{
+			r = match(OP_HASH);
+			k = OP_HASH;
+		}
+		else if(isKind(BIT_XOR))
+		{
+			r = match(BIT_XOR);
+			k = BIT_XOR;
+		}
+		return k;
+	}
+	
+	// Some helper functions
+	private boolean isUnaryOp()
+	{
+		return (isKind(OP_MINUS) || isKind(KW_not) ||
+				isKind(OP_HASH) || isKind(BIT_XOR));
+	}
+	
+	private boolean isBinaryOp()
+	{
+		return (isKind(OP_PLUS) || isKind(OP_MINUS) ||
+				isKind(OP_TIMES) || isKind(OP_DIV) ||
+				isKind(OP_DIVDIV) || isKind(OP_POW) ||
+				isKind(OP_MOD) || isKind(BIT_AMP) ||
+				isKind(BIT_XOR) || isKind(BIT_OR) ||
+				isKind(BIT_SHIFTR) || isKind(BIT_SHIFTL) ||
+				isKind(DOTDOT) || isKind(REL_LT) ||
+				isKind(REL_LE) || isKind(REL_GT) ||
+				isKind(REL_GE) || isKind(REL_EQEQ) ||
+				isKind(REL_NOTEQ) || isKind(KW_and) ||
+				isKind(KW_or));
 	}
 	
 	private ExpTable tableconstructor() throws Exception
