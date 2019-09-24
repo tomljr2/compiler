@@ -103,15 +103,32 @@ public class ExpressionParser {
 		else if(isKind(KW_function))
 		{ e0 = functiondef(); }
 		else if(isKind(NAME) || isKind(LPAREN))
-		{
-			
-		}
+		{ e0 = prefixexp(); }
 		else
 		{ e0=andExp(); }
 		return e0;
 	}
+	
+	private Exp prefixexp() throws Exception
+	{
+		Token first = t;
+		Token r;
+		Exp e = null;
+		if(isKind(NAME))
+		{
+			r=match(NAME);
+			e = new ExpName(first);
+		}
+		else if(isKind(LPAREN))
+		{
+			r=match(LPAREN);
+			e = exp();
+			r=match(RPAREN);
+		}
+		return e;
+	}
 
-	private Exp functiondef() throws Exception
+	private ExpFunction functiondef() throws Exception
 	{
 		Token first = t;
 		Token r=match(KW_function);
