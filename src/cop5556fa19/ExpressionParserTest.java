@@ -147,7 +147,35 @@ class ExpressionParserTest {
 		Exp e = parseAndShow(input);
 		assertEquals(ExpFunction.class, e.getClass());
 	}
-
+	
+	@Test
+	void testTC0() throws Exception {
+		String input = "{}";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpTable.class, e.getClass());
+	}
+	
+	@Test
+	void testTC1() throws Exception {
+		String input = "{[function(test)\nend]=true, "
+				+ "x=5; nil}";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpTable.class, e.getClass());
+	}
+	
+	@Test
+	void testPrefix0() throws Exception {
+		String input = "test";
+		Exp e = parseAndShow(input);
+		assertEquals(ExpName.class, e.getClass());
+	}
+	
+	@Test
+	void testPrefix1() throws Exception {
+		String input = "(true)";
+		Exp e = parseAndShow(input);
+		assertEquals("true", e.firstToken.text);
+	}
 
 	@Test
 	void testBinary0() throws Exception {

@@ -64,11 +64,11 @@ public class ExpressionParser {
 	Exp exp() throws Exception {
 		Token first = t;
 		Exp e0=null;
-		/*while (isKind(KW_or)) {
+		while (isKind(KW_or)) {
 			Token op = consume();
 			Exp e1 = andExp();
 			e0 = new ExpBinary(first, e0, op, e1);
-		}*/
+		}
 		Token r;
 		if(isKind(KW_nil))
 		{
@@ -104,9 +104,81 @@ public class ExpressionParser {
 		{ e0 = functiondef(); }
 		else if(isKind(NAME) || isKind(LPAREN))
 		{ e0 = prefixexp(); }
+		else if(isKind(LCURLY))
+		{ e0 = tableconstructor(); }
 		else
 		{ e0=andExp(); }
 		return e0;
+	}
+	
+	private ExpTable tableconstructor() throws Exception
+	{
+		Token first = t;
+		Token r = match(LCURLY);
+		List<Field> l = null;
+		if(!isKind(RCURLY))
+		{
+			l=fieldlist();
+		}
+		r = match(RCURLY);
+		
+		return new ExpTable(first,l);
+	}
+	
+	private List<Field> fieldlist() throws Exception
+	{
+		Token first = t;
+		List<Field> l = new ArrayList<Field>();
+		
+		l.add(field());
+		
+		while(isKind(COMMA) || isKind(SEMI))
+		{
+			fieldsep();
+			l.add(field());
+		}
+		
+		if(isKind(COMMA) || isKind(SEMI))
+			fieldsep();
+		
+		return l;
+	}
+	
+	private void fieldsep() throws Exception
+	{
+		Token r;
+		if(isKind(COMMA))
+			r=match(COMMA);
+		else if(isKind(SEMI))
+			r=match(SEMI);
+	}
+	
+	private Field field() throws Exception
+	{
+		Token first = t,r;
+		Field f=null;
+		if(isKind(LSQUARE))
+		{
+			r=match(LSQUARE);
+			Exp e0 = exp();
+			r=match(RSQUARE);
+			r=match(ASSIGN);
+			Exp e1 = exp();
+			f = new FieldExpKey(first,e0,e1);
+		}
+		else if(isKind(NAME))
+		{
+			Token name=match(NAME);
+			r=match(ASSIGN);
+			Exp e0 = exp();
+			f = new FieldNameKey(first,new Name(name,name.text),e0);
+		}
+		else
+		{
+			Exp e0 = exp();
+			f = new FieldImplicitKey(first,e0);
+		}
+		return f;
 	}
 	
 	private Exp prefixexp() throws Exception
