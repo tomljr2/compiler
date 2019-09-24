@@ -101,8 +101,10 @@ public class ExpressionParser {
 			e0 = new ExpVarArgs(first);
 		}
 		else if(isKind(KW_function))
+		{ e0 = functiondef(); }
+		else if(isKind(NAME) || isKind(LPAREN))
 		{
-			e0 = functiondef();
+			
 		}
 		else
 		{ e0=andExp(); }
@@ -122,13 +124,8 @@ public class ExpressionParser {
 		Token first = t;
 		Token r = match(LPAREN);
 		ParList pl=null;
-		if(t.kind!=RPAREN)
-		{
-			List<Name> list = new ArrayList<Name>();
-			list.add(new Name(t,t.text));
-			pl=parlist(list,false);
-			r=match(NAME);
-		}
+		if(!isKind(RPAREN))
+		{ pl=parlist(false); }
 		r=match(RPAREN);
 		Block b = block();
 		r=match(KW_end);
@@ -136,10 +133,34 @@ public class ExpressionParser {
 		return new FuncBody(first,pl,b);
 	}
 	
-	private ParList parlist(List<Name> l, boolean hasVar) throws Exception
+	private ParList parlist(boolean hasVar) throws Exception
 	{
 		Token first = t;
+		List<Name> l = null;
+		if(isKind(NAME))
+		{
+			l=namelist(hasVar);
+		}
+		else if(isKind(DOTDOTDOT))
+		{ Token r=match(DOTDOTDOT); }
 		return new ParList(first,l,hasVar);
+	}
+	
+	private List<Name> namelist(boolean hasVar) throws Exception
+	{
+		List<Name> l = new ArrayList<Name>();
+		Token r = match(NAME);
+		l.add(new Name(r,r.text));
+		if(!hasVar)
+			return l;
+		while(isKind(COMMA))
+		{
+			r=match(COMMA);
+			r=match(NAME);
+			l.add(new Name(r,r.text));
+		}
+		
+		return l;
 	}
 	
 	private Exp andExp() throws Exception{
