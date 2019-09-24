@@ -64,11 +64,11 @@ public class ExpressionParser {
 	Exp exp() throws Exception {
 		Token first = t;
 		Exp e0=null;
-		while (isKind(KW_or)) {
+		/*while (isKind(KW_or)) {
 			Token op = consume();
 			Exp e1 = andExp();
 			e0 = new ExpBinary(first, e0, op, e1);
-		}
+		}*/
 		Token r;
 		if(isKind(KW_nil))
 		{
@@ -114,7 +114,83 @@ public class ExpressionParser {
 		}
 		else
 		{ error(first,first.text); }
+		
+		// This will check after an expression to see if it is also a
+		// right associative binary expression
+		if(isKind(DOTDOT) || isKind(OP_POW))
+		{ return binop(e0); }
+		
 		return e0;
+	}
+	
+	private ExpBinary binop(Exp e0) throws Exception
+	{
+		Token first = t,op=null;
+		Exp e1 = null;
+
+		if(isKind(OP_POW)) { op = match(OP_POW); }
+		/*else if(isUnaryOp())
+		{
+			if(isKind(KW_not))
+				op = match(KW_not);
+			else if(isKind(OP_HASH))
+				op = match(OP_HASH);
+			else if(isKind(OP_MINUS))
+				op = match(OP_MINUS);
+			else if(isKind(BIT_XOR))
+				op = match(BIT_XOR);
+		}*/
+		else if(isKind(OP_TIMES) || isKind(OP_DIV) || isKind(OP_DIVDIV) || isKind(OP_MOD))
+		{
+			if(isKind(OP_TIMES))
+				op = match(OP_TIMES);
+			else if(isKind(OP_DIV))
+				op = match(OP_DIV);
+			else if(isKind(OP_DIVDIV))
+				op = match(OP_DIVDIV);
+			else if(isKind(OP_MOD))
+				op = match(OP_MOD);
+		}
+		else if(isKind(OP_PLUS) || isKind(OP_MINUS))
+		{
+			if(isKind(OP_PLUS))
+				op = match(OP_PLUS);
+			else if(isKind(OP_MINUS))
+				op = match(OP_MINUS);
+		}
+		else if(isKind(DOTDOT)) { op = match(DOTDOT); }
+		else if(isKind(BIT_SHIFTL) || isKind(BIT_SHIFTR))
+		{
+			if(isKind(BIT_SHIFTL))
+				op = match(BIT_SHIFTL);
+			else if(isKind(BIT_SHIFTR))
+				op = match(BIT_SHIFTR);
+		}
+		else if(isKind(BIT_AMP)) { op = match(BIT_AMP); }
+		else if(isKind(BIT_XOR)) { op = match(BIT_XOR); }
+		else if(isKind(BIT_OR)) { op = match(BIT_OR); }
+		else if(isKind(REL_LT) || isKind(REL_GT) || isKind(REL_LE) || isKind(REL_GE) ||
+				isKind(REL_NOTEQ) || isKind(REL_EQEQ))
+		{
+			if(isKind(REL_LT))
+				op = match(REL_LT);
+			else if(isKind(REL_GT))
+				op = match(REL_GT);
+			else if(isKind(REL_LE))
+				op = match(REL_LE);
+			else if(isKind(REL_GE))
+				op = match(REL_GE);
+			else if(isKind(REL_NOTEQ))
+				op = match(REL_NOTEQ);
+			else if(isKind(REL_EQEQ))
+				op = match(REL_EQEQ);
+		}
+		else if(isKind(KW_and)) { op = match(KW_and); }
+		else if(isKind(KW_or)) { op = match(KW_or); }
+		
+		e1=exp();
+		
+		return new ExpBinary(first,e0,op,e1);
 	}
 	
 	private Kind unop() throws Exception
