@@ -63,12 +63,55 @@ public class ExpressionParser {
 
 	Exp exp() throws Exception {
 		Token first = t;
+		
+		Exp e0 = getNextExp();
+		
+		// This will check after an expression to see if it is also a
+		// right associative binary expression
+		if(isKind(DOTDOT) || isKind(OP_POW))
+		{ return rbinop(e0); }
+		else if(isBinaryOp())
+		{ return lbinop(e0); }
+		
+		return e0;
+	}
+	
+	private ExpBinary lbinop(Exp e0) throws Exception
+	{
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isBinaryOp())
+		{
+			op=matchBin();
+			e1=getNextExp();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+		
+		return eb;
+	}
+	
+	private ExpBinary rbinop(Exp e0) throws Exception
+	{
+		Token first = t,op=null;
+		Exp e1 = null;
+
+		op=matchBin();
+		
+		e1=exp();
+		return new ExpBinary(first,e0,op,e1);
+	}
+	
+	Exp getNextExp() throws Exception
+	{
+		Token first = t;
 		Exp e0=null;
-		/*while (isKind(KW_or)) {
+		while (isKind(KW_or)) {
 			Token op = consume();
 			Exp e1 = andExp();
 			e0 = new ExpBinary(first, e0, op, e1);
-		}*/
+		}
 		Token r;
 		if(isKind(KW_nil))
 		{
@@ -115,19 +158,12 @@ public class ExpressionParser {
 		else
 		{ error(first,first.text); }
 		
-		// This will check after an expression to see if it is also a
-		// right associative binary expression
-		if(isKind(DOTDOT) || isKind(OP_POW))
-		{ return binop(e0); }
-		
 		return e0;
 	}
 	
-	private ExpBinary binop(Exp e0) throws Exception
+	Token matchBin() throws Exception
 	{
-		Token first = t,op=null;
-		Exp e1 = null;
-
+		Token op=null;
 		if(isKind(OP_POW)) { op = match(OP_POW); }
 		/*else if(isUnaryOp())
 		{
@@ -188,9 +224,7 @@ public class ExpressionParser {
 		else if(isKind(KW_and)) { op = match(KW_and); }
 		else if(isKind(KW_or)) { op = match(KW_or); }
 		
-		e1=exp();
-		
-		return new ExpBinary(first,e0,op,e1);
+		return op;
 	}
 	
 	private Kind unop() throws Exception
