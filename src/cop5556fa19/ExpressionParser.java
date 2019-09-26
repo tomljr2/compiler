@@ -152,7 +152,7 @@ public class ExpressionParser {
 		else if(isUnaryOp())
 		{
 			Kind k = unop();
-			Exp e = exp();
+			Exp e = getNextExp();
 			e0 = new ExpUnary(first,k,e);
 		}
 		else
@@ -325,22 +325,22 @@ public class ExpressionParser {
 		if(isKind(LSQUARE))
 		{
 			r=match(LSQUARE);
-			Exp e0 = exp();
+			Exp e0 = getNextExp();
 			r=match(RSQUARE);
 			r=match(ASSIGN);
-			Exp e1 = exp();
+			Exp e1 = getNextExp();
 			f = new FieldExpKey(first,e0,e1);
 		}
 		else if(isKind(NAME))
 		{
 			Token name=match(NAME);
 			r=match(ASSIGN);
-			Exp e0 = exp();
+			Exp e0 = getNextExp();
 			f = new FieldNameKey(first,new Name(name,name.text),e0);
 		}
 		else
 		{
-			Exp e0 = exp();
+			Exp e0 = getNextExp();
 			f = new FieldImplicitKey(first,e0);
 		}
 		return f;
@@ -359,7 +359,7 @@ public class ExpressionParser {
 		else if(isKind(LPAREN))
 		{
 			r=match(LPAREN);
-			e = exp();
+			e = getNextExp();
 			r=match(RPAREN);
 		}
 		return e;
