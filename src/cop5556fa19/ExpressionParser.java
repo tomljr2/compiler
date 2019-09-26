@@ -63,46 +63,272 @@ public class ExpressionParser {
 
 	Exp exp() throws Exception {
 		Token first = t;
-		
-		Exp e0 = getNextExp();
-		
-		// This will check after an expression to see if it is also a
-		// right associative binary expression
-		if(isKind(DOTDOT) || isKind(OP_POW))
-		{ return rbinop(e0); }
-		else if(isBinaryOp())
-		{ return lbinop(e0); }
+		Exp e0 = prec1();
 		
 		return e0;
 	}
 	
-	private ExpBinary lbinop(Exp e0) throws Exception
+	Exp prec1() throws Exception
 	{
+		Exp e0 = prec2();
 		Token first = t, op = null;
 		Exp e1 = null;
 		ExpBinary eb = null;
-		while(isBinaryOp())
+		while(isKind(KW_or))
 		{
-			op=matchBin();
-			e1=getNextExp();
+			op=match(KW_or);
+			e1=prec2();
 			eb = new ExpBinary(first,e0,op,e1);
 			e0 = eb;
 		}
-		
-		return eb;
-	}
-	
-	private ExpBinary rbinop(Exp e0) throws Exception
-	{
-		Token first = t,op=null;
-		Exp e1 = null;
 
-		op=matchBin();
-		
-		e1=exp();
-		return new ExpBinary(first,e0,op,e1);
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
 	}
 	
+	Exp prec2() throws Exception
+	{
+		Exp e0 = prec3();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isKind(KW_and))
+		{
+			op=match(KW_and);
+			e1=prec3();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec3() throws Exception
+	{
+		Exp e0 = prec4();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isRel())
+		{
+			op=match(t.kind);
+			e1=prec4();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec4() throws Exception
+	{
+		Exp e0 = prec5();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isKind(BIT_OR))
+		{
+			op=match(BIT_OR);
+			e1=prec5();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec5() throws Exception
+	{
+		Exp e0 = prec6();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isKind(BIT_XOR))
+		{
+			op=match(BIT_XOR);
+			e1=prec6();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec6() throws Exception
+	{
+		Exp e0 = prec7();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isKind(BIT_AMP))
+		{
+			op=match(BIT_AMP);
+			e1=prec7();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec7() throws Exception
+	{
+		Exp e0 = prec8();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isShift())
+		{
+			op=match(t.kind);
+			e1=prec8();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec8() throws Exception
+	{
+		Exp e0=prec9();
+		Exp e1=null;
+		ExpBinary eb = null;
+		Token first = t, op = null;
+		if(isKind(DOTDOT))
+		{
+			op=match(DOTDOT);
+			e1 = prec8();
+			eb = new ExpBinary(first,e0,op,e1);
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec9() throws Exception
+	{
+		Exp e0 = prec10();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isAddOp())
+		{
+			op=match(t.kind);
+			e1=prec10();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec10() throws Exception
+	{
+		Exp e0 = prec11();
+		Token first = t, op = null;
+		Exp e1 = null;
+		ExpBinary eb = null;
+		while(isMultOp())
+		{
+			op=match(t.kind);
+			e1=prec11();
+			eb = new ExpBinary(first,e0,op,e1);
+			e0 = eb;
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	Exp prec11() throws Exception
+	{
+		Exp e0 = null;
+		Token first = t, op = null;
+		Exp eu = null;
+		if(!isUnaryOp())
+			e0=prec12();
+		else
+		{
+			op=match(t.kind);
+			e0=prec12();
+			eu = new ExpUnary(first,op.kind,e0);
+		}
+
+		if(eu==null)
+			return e0;
+		else 
+			return eu;
+		
+	}
+	
+	Exp prec12() throws Exception
+	{
+		Exp e0=getNextExp();
+		Exp e1=null;
+		ExpBinary eb = null;
+		Token first = t, op = null;
+		if(isKind(OP_POW))
+		{
+			op=match(OP_POW);
+			e1 = prec12();
+			eb = new ExpBinary(first,e0,op,e1);
+		}
+
+		if(eb==null)
+			return e0;
+		else 
+			return eb;
+	}
+	
+	private boolean isRel()
+	{
+		return (isKind(REL_LT) || isKind(REL_GT) ||
+				isKind(REL_LE) || isKind(REL_GE) ||
+				isKind(REL_NOTEQ) || isKind(REL_EQEQ));
+	}
+	
+	private boolean isShift()
+	{
+		return (isKind(BIT_SHIFTL) || isKind(BIT_SHIFTR));
+	}
+	
+	private boolean isAddOp()
+	{
+		return (isKind(OP_PLUS) || isKind(OP_MINUS));
+	}
+	
+	private boolean isMultOp()
+	{
+		return (isKind(OP_TIMES) || isKind(OP_DIV) ||
+				isKind(OP_DIVDIV) || isKind(OP_MOD));
+	}
 	Exp getNextExp() throws Exception
 	{
 		Token first = t;
@@ -152,79 +378,13 @@ public class ExpressionParser {
 		else if(isUnaryOp())
 		{
 			Kind k = unop();
-			Exp e = getNextExp();
+			Exp e = exp();
 			e0 = new ExpUnary(first,k,e);
 		}
 		else
 		{ error(first,first.text); }
 		
 		return e0;
-	}
-	
-	Token matchBin() throws Exception
-	{
-		Token op=null;
-		if(isKind(OP_POW)) { op = match(OP_POW); }
-		/*else if(isUnaryOp())
-		{
-			if(isKind(KW_not))
-				op = match(KW_not);
-			else if(isKind(OP_HASH))
-				op = match(OP_HASH);
-			else if(isKind(OP_MINUS))
-				op = match(OP_MINUS);
-			else if(isKind(BIT_XOR))
-				op = match(BIT_XOR);
-		}*/
-		else if(isKind(OP_TIMES) || isKind(OP_DIV) || isKind(OP_DIVDIV) || isKind(OP_MOD))
-		{
-			if(isKind(OP_TIMES))
-				op = match(OP_TIMES);
-			else if(isKind(OP_DIV))
-				op = match(OP_DIV);
-			else if(isKind(OP_DIVDIV))
-				op = match(OP_DIVDIV);
-			else if(isKind(OP_MOD))
-				op = match(OP_MOD);
-		}
-		else if(isKind(OP_PLUS) || isKind(OP_MINUS))
-		{
-			if(isKind(OP_PLUS))
-				op = match(OP_PLUS);
-			else if(isKind(OP_MINUS))
-				op = match(OP_MINUS);
-		}
-		else if(isKind(DOTDOT)) { op = match(DOTDOT); }
-		else if(isKind(BIT_SHIFTL) || isKind(BIT_SHIFTR))
-		{
-			if(isKind(BIT_SHIFTL))
-				op = match(BIT_SHIFTL);
-			else if(isKind(BIT_SHIFTR))
-				op = match(BIT_SHIFTR);
-		}
-		else if(isKind(BIT_AMP)) { op = match(BIT_AMP); }
-		else if(isKind(BIT_XOR)) { op = match(BIT_XOR); }
-		else if(isKind(BIT_OR)) { op = match(BIT_OR); }
-		else if(isKind(REL_LT) || isKind(REL_GT) || isKind(REL_LE) || isKind(REL_GE) ||
-				isKind(REL_NOTEQ) || isKind(REL_EQEQ))
-		{
-			if(isKind(REL_LT))
-				op = match(REL_LT);
-			else if(isKind(REL_GT))
-				op = match(REL_GT);
-			else if(isKind(REL_LE))
-				op = match(REL_LE);
-			else if(isKind(REL_GE))
-				op = match(REL_GE);
-			else if(isKind(REL_NOTEQ))
-				op = match(REL_NOTEQ);
-			else if(isKind(REL_EQEQ))
-				op = match(REL_EQEQ);
-		}
-		else if(isKind(KW_and)) { op = match(KW_and); }
-		else if(isKind(KW_or)) { op = match(KW_or); }
-		
-		return op;
 	}
 	
 	private Kind unop() throws Exception
@@ -259,21 +419,6 @@ public class ExpressionParser {
 	{
 		return (isKind(OP_MINUS) || isKind(KW_not) ||
 				isKind(OP_HASH) || isKind(BIT_XOR));
-	}
-	
-	private boolean isBinaryOp()
-	{
-		return (isKind(OP_PLUS) || isKind(OP_MINUS) ||
-				isKind(OP_TIMES) || isKind(OP_DIV) ||
-				isKind(OP_DIVDIV) || isKind(OP_POW) ||
-				isKind(OP_MOD) || isKind(BIT_AMP) ||
-				isKind(BIT_XOR) || isKind(BIT_OR) ||
-				isKind(BIT_SHIFTR) || isKind(BIT_SHIFTL) ||
-				isKind(DOTDOT) || isKind(REL_LT) ||
-				isKind(REL_LE) || isKind(REL_GT) ||
-				isKind(REL_GE) || isKind(REL_EQEQ) ||
-				isKind(REL_NOTEQ) || isKind(KW_and) ||
-				isKind(KW_or));
 	}
 	
 	private ExpTable tableconstructor() throws Exception
@@ -325,22 +470,22 @@ public class ExpressionParser {
 		if(isKind(LSQUARE))
 		{
 			r=match(LSQUARE);
-			Exp e0 = getNextExp();
+			Exp e0 = exp();
 			r=match(RSQUARE);
 			r=match(ASSIGN);
-			Exp e1 = getNextExp();
+			Exp e1 = exp();
 			f = new FieldExpKey(first,e0,e1);
 		}
 		else if(isKind(NAME))
 		{
 			Token name=match(NAME);
 			r=match(ASSIGN);
-			Exp e0 = getNextExp();
+			Exp e0 = exp();
 			f = new FieldNameKey(first,new Name(name,name.text),e0);
 		}
 		else
 		{
-			Exp e0 = getNextExp();
+			Exp e0 = exp();
 			f = new FieldImplicitKey(first,e0);
 		}
 		return f;
@@ -359,7 +504,7 @@ public class ExpressionParser {
 		else if(isKind(LPAREN))
 		{
 			r=match(LPAREN);
-			e = getNextExp();
+			e = exp();
 			r=match(RPAREN);
 		}
 		return e;

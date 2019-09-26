@@ -232,20 +232,4 @@ class ExpressionParserTest {
 		
 	}
 
-	
-	@Test
-	void testPrecedence() throws Exception {
-		String input = "-2^5+6*6";
-		Exp e = parseAndShow(input);
-		Exp expected = Expressions.makeBinary(
-				Expressions.makeBinary(
-						Expressions.makeExpString("minus")
-				, OP_MINUS
-				, Expressions.makeExpString("is")), OP_MINUS, 
-				Expressions.makeExpString("left associative"));
-		show("expected=" + expected);
-		assertEquals(expected,e);
-		
-	}
-
 }
