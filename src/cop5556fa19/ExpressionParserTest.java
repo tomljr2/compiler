@@ -231,5 +231,4 @@ class ExpressionParserTest {
 		assertEquals(expected,e);
 		
 	}
-
 }

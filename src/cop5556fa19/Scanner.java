@@ -354,6 +354,15 @@ public class Scanner {
 								+ lin + " character " + chr + ". Invalid character in "
 										+ " string literal: \\" + Character.toString((char)nextChr));
 					}
+					if(prev=='\\' && (nextChr=='a' || nextChr=='b' || nextChr=='f' || nextChr =='n' ||
+					          nextChr=='r' || nextChr=='t' || nextChr=='v' || nextChr =='\\' ||
+					          nextChr=='\"'|| nextChr!='\''))
+					{ tok=tok.substring(0,tok.length()-2); }
+					if(nextChr==-1)
+						throw new LexicalException("Lexical Exception at line "
+							+ lin + " character " + chr + ". Invalid character in "
+									+ " string literal: " + Character.toString((char)nextChr));
+					
 				}
 				nextChr=-2;
 				return new Token(STRINGLIT,tok.substring(0,tok.length()-1),chr++,lin);
@@ -386,6 +395,14 @@ public class Scanner {
 											+ lin + " character " + chr + ". Invalid character in "
 													+ " string literal: \\" + Character.toString((char)nextChr));
 								}
+								if(prev=='\\' && (nextChr=='a' || nextChr=='b' || nextChr=='f' || nextChr =='n' ||
+								          nextChr=='r' || nextChr=='t' || nextChr=='v' || nextChr =='\\' ||
+								          nextChr=='\"'|| nextChr!='\''))
+								{ tok=tok.substring(0,tok.length()-2); }
+								if(nextChr==-1)
+									throw new LexicalException("Lexical Exception at line "
+										+ lin + " character " + chr + ". Invalid character in "
+												+ " string literal: " + Character.toString((char)nextChr));
 							}
 							nextChr=-2;
 							return new Token(STRINGLIT,tok.substring(0,tok.length()-1),chr++,lin);

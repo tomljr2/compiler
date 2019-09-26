@@ -597,4 +597,74 @@ class ScannerTest {
 		show(t= s.getNext()); 
 		assertEquals(EOF, t.kind);
 	}
+	
+	@Test
+	void test18() throws Exception {
+		String str = "\"this is a string\"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		t=s.getNext();
+        assertEquals("this is a string",t.getStringVal());
+	}
+	
+	@Test
+	void test19() throws Exception {
+		String str = "'' \" \"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		t=s.getNext();
+        assertEquals("",t.getStringVal());
+	}
+	
+	@Test
+	void test20() throws Exception {
+		String str = "\"\\a \\v\"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		t=s.getNext();
+        assertEquals(" ",t.getStringVal());
+	}
+	
+	@Test
+	void test21() throws Exception {
+		String str = "\"\b\\b\f\\f\n\\n\r\\r\t\\t\"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		t=s.getNext();
+        assertEquals("\b\f\n\r\t",t.getStringVal());
+	}
+	
+	@Test
+	void test22() throws Exception {
+		String str = "\"\\aapple \\bbag \\ffood \\ttable\"";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+		Token t;
+		t=s.getNext();
+        assertEquals("apple bag food table",t.getStringVal());
+	}
+	
+	@Test
+	void test23() throws Exception {
+		String str = "\"abc def g";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+        assertThrows(LexicalException.class, ()->{
+		   s.getNext();
+        });
+	}
+	
+	@Test
+	void test24() throws Exception {
+		String str = "--cc";
+		Reader r = new StringReader(str);
+		Scanner s = new Scanner(r);
+        assertThrows(LexicalException.class, ()->{
+		   s.getNext();
+        });
+	}
 }
