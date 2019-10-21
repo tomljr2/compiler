@@ -231,4 +231,60 @@ class ExpressionParserTest {
 		assertEquals(expected,e);
 		
 	}
+	
+	@Test
+	void test0() throws Exception {
+		String input = "function (aa, b) end >> function(test, l, ...) end ";
+		Exp e = parseAndShow(input);
+		
+	}
+	
+	@Test
+	void test1() throws Exception {
+		String input = "function (aa, b) end >> function(test, l, ...) end & function(...) end";
+		Exp e = parseAndShow(input);
+		
+	}
+	
+	@Test
+	void test2() throws Exception {
+		String input = "{}";
+		Exp e = parseAndShow(input);
+		
+	}
+	
+	@Test
+	void test3() throws Exception {
+		String input = "{3, a}";
+		Exp e = parseAndShow(input);
+		
+	}
+	
+	@Test
+	void test4() throws Exception {
+		String input = "{[x + y] = xx * yy,}";
+		Exp e = parseAndShow(input);
+		
+	}
+
+	@Test
+	void test5() throws Exception {
+		String input = "function (a,b) end";
+		Exp e = parseAndShow(input);
+		
+	}
+
+	@Test
+	void test6() throws Exception {
+		String input = "function (...) end";
+		Exp e = parseAndShow(input);
+		
+	}
+
+	@Test
+	void test7() throws Exception {
+		String input = "function (xy,zy, ...) end";
+		Exp e = parseAndShow(input);
+		
+	}
 }

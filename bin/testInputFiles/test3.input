@@ -1,0 +1,31 @@
+-- This is a test program to see if
+-- everything is working.
+
+function test():
+{
+	i=0;
+	Test1$_='ok';
+	n=20;
+	for(;i<n;i=i+1):
+	{
+		if(i<n) then:
+		{ 
+			while(i>0 or i<n):
+			{
+				break;
+			}
+		}
+		elseif(i*n>=5) then:
+		{
+			break;
+		}
+		else:
+		{
+			i=n;
+		}
+		end
+	}
+	
+	print("hello" + 'k\n');
+	end
+}

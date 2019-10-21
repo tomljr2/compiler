@@ -445,11 +445,9 @@ public class ExpressionParser {
 		while(isKind(COMMA) || isKind(SEMI))
 		{
 			fieldsep();
-			l.add(field());
+			if(!isKind(RCURLY))
+			   l.add(field());
 		}
-		
-		if(isKind(COMMA) || isKind(SEMI))
-			fieldsep();
 		
 		return l;
 	}
@@ -479,9 +477,16 @@ public class ExpressionParser {
 		else if(isKind(NAME))
 		{
 			Token name=match(NAME);
-			r=match(ASSIGN);
-			Exp e0 = exp();
-			f = new FieldNameKey(first,new Name(name,name.text),e0);
+			if(	isKind(ASSIGN))
+			{
+				r=match(ASSIGN);
+				Exp e0 = exp();
+				f = new FieldNameKey(first,new Name(name,name.text),e0);
+			}
+			else
+			{
+				f = new FieldImplicitKey(first,new ExpName(name));
+			}
 		}
 		else
 		{
@@ -540,8 +545,11 @@ public class ExpressionParser {
 		{
 			l=namelist(hasVar);
 		}
-		else if(isKind(DOTDOTDOT))
-		{ Token r=match(DOTDOTDOT); }
+		if(isKind(DOTDOTDOT))
+		{ 
+			Token r=match(DOTDOTDOT);
+			hasVar=true;
+		}
 		return new ParList(first,l,hasVar);
 	}
 	
@@ -550,11 +558,10 @@ public class ExpressionParser {
 		List<Name> l = new ArrayList<Name>();
 		Token r = match(NAME);
 		l.add(new Name(r,r.text));
-		if(!hasVar)
-			return l;
 		while(isKind(COMMA))
 		{
 			r=match(COMMA);
+			if(isKind(DOTDOTDOT)) break;
 			r=match(NAME);
 			l.add(new Name(r,r.text));
 		}
