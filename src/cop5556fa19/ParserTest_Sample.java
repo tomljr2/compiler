@@ -301,5 +301,29 @@ class ParserTest_Sample {
 		String input = "if x==y then x=g(a)[b] elseif x>y then y=g[b](a) else x,y = a.b.c[g] , g[a].b(c) end";
 		ASTNode c = parseAndShow(input);
 	}	
+	
+	@Test
+	void testForChunk1() throws Exception {
+		String input = "for x=true , true do ::x::;x=g[b].a end";
+		ASTNode c = parseAndShow(input);
+	}	
+	
+	@Test
+	void testForChunk2() throws Exception {
+		String input = "for x=true , true, f(x) do ::x::;x=g[b].a end";
+		ASTNode c = parseAndShow(input);
+	}	
+	
+	@Test
+	void testForChunk3() throws Exception {
+		String input = "for x,y,z in f(x),f[a],true do ::x::;goto x end";
+		ASTNode c = parseAndShow(input);
+	}
+	
+	@Test
+	void testForChunk4() throws Exception {
+		String input = "for x in f(x) do ::x::;goto x end";
+		ASTNode c = parseAndShow(input);
+	}
 }
 

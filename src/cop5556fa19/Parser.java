@@ -46,6 +46,8 @@ import cop5556fa19.AST.StatAssign;
 import cop5556fa19.AST.StatBreak;
 import cop5556fa19.AST.StatDo;
 import cop5556fa19.AST.StatGoto;
+import cop5556fa19.AST.StatFor;
+import cop5556fa19.AST.StatForEach;
 import cop5556fa19.AST.StatIf;
 import cop5556fa19.AST.StatLabel;
 import cop5556fa19.AST.StatRepeat;
@@ -174,8 +176,56 @@ public class Parser {
 			r=match(KW_end);
 			ret = new StatIf(first,el,bl);
 		}
+		else if (isKind(KW_for))
+		{
+			r=match(KW_for);
+			r=match(NAME);
+			ExpName n = new ExpName(r.text);
+			if(isKind(ASSIGN))
+			{
+				r=match(ASSIGN);
+				Exp e0 = exp();
+				r=match(COMMA);
+				Exp e1 = exp();
+				Exp e2 = null;
+				if(isKind(COMMA))
+				{
+					r=match(COMMA);
+					e2=exp();
+				}
+				r=match(KW_do);
+				Block b = block();
+				r=match(KW_end);
+				ret = new StatFor(first,n,e0,e1,e2,b);
+			}
+			else if(isKind(COMMA) || isKind(KW_in))
+			{
+				List<ExpName> nl = namelist(n);
+				r=match(KW_in);
+				List<Exp> el = explist();
+				r=match(KW_do);
+				Block b = block();
+				r=match(KW_end);
+				
+				ret = new StatForEach(first,nl,el,b);
+			}
+		}
 		
 		return ret;	
+	}
+	
+	private List<ExpName> namelist(ExpName n) throws Exception
+	{
+		Token r;
+		List<ExpName> l = new ArrayList<ExpName>();
+		l.add(n);
+		while(isKind(COMMA))
+		{
+			r=match(COMMA);
+			r=match(NAME);
+			l.add(new ExpName(r.text));
+		}
+		return l;
 	}
 	
 	private Name label() throws Exception
