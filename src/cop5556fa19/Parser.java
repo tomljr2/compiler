@@ -25,6 +25,7 @@ import cop5556fa19.AST.ExpFalse;
 import cop5556fa19.AST.ExpFunction;
 import cop5556fa19.AST.ExpFunctionCall;
 import cop5556fa19.AST.ExpInt;
+import cop5556fa19.AST.ExpList;
 import cop5556fa19.AST.ExpName;
 import cop5556fa19.AST.ExpNil;
 import cop5556fa19.AST.ExpString;
@@ -546,20 +547,17 @@ public class Parser {
 			r=match(NAME);
 
 			e = new ExpName(r);
-
-			if(isKind(LSQUARE) | isKind(DOT))
-			{
-				e = pt(first,e);
-				//System.out.println(e.toString());
-			}
+			e0 = pt(first,e);
 		}
 		else if(isKind(LPAREN))
 		{
 			r=match(LPAREN);
 			e = exp();
 			r=match(RPAREN);
-			e = pt(first,e);
+			e0 = pt(first,e);
 		}
+		if(e0 != null)
+		   return e0;
 		return e;
 	}
 	
@@ -574,25 +572,71 @@ public class Parser {
 			r = match(RSQUARE);
 			e0 = new ExpTableLookup(f,name,e0);
 			Exp e1 = pt(first,e0);
-			if (e1 != null)
-				e = new ExpTableLookup(first,e0,e1);
+			if(e1 != null)
+				e = e1;
 			else
-				e = e0;
+				e =e0;
 		}
 		else if(isKind(DOT))
 		{
 			r=match(DOT);
 			r=match(NAME);
-			Exp e0 = new ExpName(r);
-			e0 = new ExpTableLookup(f,name,e0);
+			Exp e0 = new ExpTableLookup(f,name,new ExpName(r));
 			Exp e1 = pt(first,e0);
-			if (e1 != null)
-				e = new ExpTableLookup(first,e0,e1);
+			if(e1 != null)
+				e = e1;
 			else
-				e = e0;
+				e =e0;
+		}
+		else if(isKind(LPAREN) | isKind(LCURLY) | isKind(STRINGLIT))
+		{
+			Exp e0 = new ExpFunctionCall(f,name,args());
+			Exp e1 = pt(first,e0);
+			if(e1 != null)
+			   e = e1;
+			else
+				e =e0;
+		}
+		return e;
+	}
+	
+	private List<Exp> args() throws Exception
+	{
+		Token first = t,r;
+		List<Exp> l = new ArrayList<>();
+		if(isKind(LPAREN))
+		{
+			r=match(LPAREN);
+			if(!isKind(RPAREN))
+			{
+				l = explist();
+			}
+			r=match(RPAREN);
+		}
+		else if(isKind(LCURLY))
+		{
+			l.add(tableconstructor());
+		}
+		else if(isKind(STRINGLIT))
+		{
+			r=match(STRINGLIT);
+			l.add(new ExpString(r));
 		}
 		
-		return e;
+		return l;
+	}
+	
+	private List<Exp> explist() throws Exception
+	{
+		Token r;
+		List<Exp> l = new ArrayList<Exp>();
+		l.add(exp());
+		while(isKind(COMMA))
+		{
+			r=match(COMMA);
+			l.add(exp());
+		}
+		return l;
 	}
 
 	private ExpFunction functiondef() throws Exception

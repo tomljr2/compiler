@@ -300,4 +300,11 @@ class ExpressionParserTest {
 		assertEquals(e2,e3);
 		
 	}
+
+	@Test
+	void test9() throws Exception {
+		String input = "f{x}(y,z)\"hi\"";
+		Exp e = parseAndShow(input);
+		
+	}
 }
