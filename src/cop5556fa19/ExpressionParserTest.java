@@ -307,4 +307,13 @@ class ExpressionParserTest {
 		Exp e = parseAndShow(input);
 		
 	}
+
+	@Test
+	void test10() throws Exception {
+		String input = "v:name(x,y)";
+		String input2 = "v.name(v,x,y)";
+		Exp e = parseAndShow(input);
+		Exp e2 = parseAndShow(input);
+		assertEquals(e,e2);
+	}
 }

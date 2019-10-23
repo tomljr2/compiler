@@ -597,6 +597,20 @@ public class Parser {
 			else
 				e =e0;
 		}
+		else if(isKind(COLON))
+		{
+			r=match(COLON);
+			r=match(NAME);
+			ExpName n1 = new ExpName(r);
+			List<Exp> l = args();
+			l.add(0,name);
+			Exp e0 = new ExpFunctionCall(f,new ExpTableLookup(f,name,n1),l);
+			Exp e1 = pt(first,n1);
+			if(e1 != null)
+			   e = e1;
+			else
+				e =e0;
+		}
 		return e;
 	}
 	
