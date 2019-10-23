@@ -39,8 +39,10 @@ import cop5556fa19.AST.FieldExpKey;
 import cop5556fa19.AST.FieldImplicitKey;
 import cop5556fa19.AST.FieldNameKey;
 import cop5556fa19.AST.FuncBody;
+import cop5556fa19.AST.FuncName;
 import cop5556fa19.AST.Name;
 import cop5556fa19.AST.ParList;
+import cop5556fa19.AST.RetStat;
 import cop5556fa19.AST.Stat;
 import cop5556fa19.AST.StatAssign;
 import cop5556fa19.AST.StatBreak;
@@ -48,8 +50,11 @@ import cop5556fa19.AST.StatDo;
 import cop5556fa19.AST.StatGoto;
 import cop5556fa19.AST.StatFor;
 import cop5556fa19.AST.StatForEach;
+import cop5556fa19.AST.StatFunction;
 import cop5556fa19.AST.StatIf;
 import cop5556fa19.AST.StatLabel;
+import cop5556fa19.AST.StatLocalAssign;
+import cop5556fa19.AST.StatLocalFunc;
 import cop5556fa19.AST.StatRepeat;
 import cop5556fa19.AST.StatWhile;
 import cop5556fa19.AST.TableDeref;
@@ -99,6 +104,18 @@ public class Parser {
 			if(isKind(SEMI)) r=match(SEMI);
 			else l.add(stat());
 		}
+		
+		if(isKind(KW_return))
+		{
+			r=match(KW_return);
+			if(!isKind(EOF) && !isKind(SEMI))
+			{
+				l.add(new RetStat(first,explist()));
+			}
+			if(isKind(SEMI))
+				r=match(SEMI);
+		}
+		
 		return new Block(first,l);
 	}
 	
@@ -210,8 +227,60 @@ public class Parser {
 				ret = new StatForEach(first,nl,el,b);
 			}
 		}
+		else if(isKind(KW_function))
+		{
+			r=match(KW_function);
+			FuncName fn = funcname();
+			FuncBody fb = functionbody();
+			ret = new StatFunction(first,fn,fb);	
+		}
+		else if(isKind(KW_local))
+		{
+			r=match(KW_local);
+			if(isKind(KW_function))
+			{
+				r=match(KW_function);
+				FuncName fn = funcname();
+				FuncBody fb = functionbody();
+				ret = new StatLocalFunc(first,fn,fb);
+			}
+			else if (isKind(NAME))
+			{
+				r=match(NAME);
+				List<ExpName> nl = namelist(new ExpName(r.text));
+				List<Exp> el = null;
+				if(isKind(ASSIGN))
+				{
+					r=match(ASSIGN);
+					el = explist();
+				}
+				ret = new StatLocalAssign(first,nl,el);
+			}
+		}
 		
 		return ret;	
+	}
+	
+	private FuncName funcname() throws Exception
+	{
+		Token first = t,r;
+		List<ExpName> nl = new ArrayList<>();
+		ExpName ac = null;
+		r=match(NAME);
+		nl.add(new ExpName(r.text));
+		while(isKind(COMMA))
+		{
+			r=match(COMMA);
+			r=match(NAME);
+			nl.add(new ExpName(r.text));
+		}
+		if(isKind(COLON))
+		{
+			r=match(COLON);
+			r=match(NAME);
+			ac = new ExpName(r.text);
+		}
+		return new FuncName(first,nl,ac);
 	}
 	
 	private List<ExpName> namelist(ExpName n) throws Exception

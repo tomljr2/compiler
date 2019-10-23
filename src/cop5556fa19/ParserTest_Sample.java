@@ -325,5 +325,47 @@ class ParserTest_Sample {
 		String input = "for x in f(x) do ::x::;goto x end";
 		ASTNode c = parseAndShow(input);
 	}
+	
+	@Test
+	void testFunctionChunk1() throws Exception {
+		String input = "function x(a,b,c) y=x(d,f,e) end";
+		ASTNode c = parseAndShow(input);
+	}
+	
+	@Test
+	void testFunctionChunk2() throws Exception {
+		String input = "function x,y,z(a,b,c) y=x(d,f,e) end";
+		ASTNode c = parseAndShow(input);
+	}
+	
+	@Test
+	void testFunctionChunk3() throws Exception {
+		String input = "function x,y,z:w(a,b,c) y=x(d,f,e) end";
+		ASTNode c = parseAndShow(input);
+	}
+	
+	@Test
+	void testReturnChunk1() throws Exception {
+		String input = "function x,y,z:w(a,b,c) y=x(d,f,e) return y; end";
+		ASTNode c = parseAndShow(input);
+	}
+	
+	@Test
+	void testFunctionChunk4() throws Exception {
+		String input = "local function x,y,z:w(a,b,c) y=x(d,f,e) return y; end";
+		ASTNode c = parseAndShow(input);
+	}
+
+	@Test
+	void testLocalMultiAssign1() throws Exception {
+		String input = "local a,c=8,f(x)";
+		Block b = parseBlockAndShow(input);		
+	}
+
+	@Test
+	void testLocalMultiAssign2() throws Exception {
+		String input = "local a=b";
+		Block b = parseBlockAndShow(input);		
+	}
 }
 
