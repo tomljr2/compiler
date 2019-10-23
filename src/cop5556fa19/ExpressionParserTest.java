@@ -39,7 +39,7 @@ import cop5556fa19.AST.Field;
 import cop5556fa19.AST.FieldExpKey;
 import cop5556fa19.AST.FieldImplicitKey;
 import cop5556fa19.AST.ParList;
-import cop5556fa19.ExpressionParser.SyntaxException;
+import cop5556fa19.Parser.SyntaxException;
 
 class ExpressionParserTest {
 
@@ -52,14 +52,14 @@ class ExpressionParserTest {
 		}
 	}
 
-
+	
 	
 	// creates a scanner, parser, and parses the input.  
 	Exp parseAndShow(String input) throws Exception {
 		show("parser input:\n" + input); // Display the input
 		Reader r = new StringReader(input);
 		Scanner scanner = new Scanner(r); // Create a Scanner and initialize it
-		ExpressionParser parser = new ExpressionParser(scanner);  // Create a parser
+		Parser parser = new Parser(scanner);  // Create a parser
 		Exp e = parser.exp(); // Parse and expression
 		show("e=" + e);  //Show the resulting AST
 		return e;
@@ -285,6 +285,19 @@ class ExpressionParserTest {
 	void test7() throws Exception {
 		String input = "function (xy,zy, ...) end";
 		Exp e = parseAndShow(input);
+		
+	}
+
+	@Test
+	void test8() throws Exception {
+		String input = "a[b][c][d]";
+		String input2 = "a.b.c.d";
+		String input3 = "a[b].c[d]";
+		Exp e = parseAndShow(input);
+		Exp e2 = parseAndShow(input2);
+		Exp e3 = parseAndShow(input3);
+		assertEquals(e,e2);
+		assertEquals(e2,e3);
 		
 	}
 }

@@ -18,15 +18,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import cop5556fa19.AST.Block;
+import cop5556fa19.AST.Chunk;
 import cop5556fa19.AST.Exp;
 import cop5556fa19.AST.ExpBinary;
 import cop5556fa19.AST.ExpFalse;
 import cop5556fa19.AST.ExpFunction;
+import cop5556fa19.AST.ExpFunctionCall;
 import cop5556fa19.AST.ExpInt;
 import cop5556fa19.AST.ExpName;
 import cop5556fa19.AST.ExpNil;
 import cop5556fa19.AST.ExpString;
 import cop5556fa19.AST.ExpTable;
+import cop5556fa19.AST.ExpTableLookup;
 import cop5556fa19.AST.ExpTrue;
 import cop5556fa19.AST.ExpUnary;
 import cop5556fa19.AST.ExpVarArgs;
@@ -37,10 +40,12 @@ import cop5556fa19.AST.FieldNameKey;
 import cop5556fa19.AST.FuncBody;
 import cop5556fa19.AST.Name;
 import cop5556fa19.AST.ParList;
+import cop5556fa19.AST.Stat;
+import cop5556fa19.AST.TableDeref;
 import cop5556fa19.Token.Kind;
 import static cop5556fa19.Token.Kind.*;
 
-public class ExpressionParser {
+public class Parser {
 	
 	@SuppressWarnings("serial")
 	class SyntaxException extends Exception {
@@ -55,11 +60,45 @@ public class ExpressionParser {
 	Token t;  //invariant:  this is the next token
 
 
-	ExpressionParser(Scanner s) throws Exception {
+	Parser(Scanner s) throws Exception {
 		this.scanner = s;
 		t = scanner.getNext(); //establish invariant
 	}
 
+	public Chunk parse() throws Exception {
+		Chunk chunk = chunk();
+		if (!isKind(EOF)) throw new SyntaxException(t, "Parse ended before end of input");
+		return chunk;
+	}
+	
+	Chunk chunk() throws Exception
+	{
+		Token first = t;
+		Block b = block();
+		return new Chunk(first,b);
+	}
+
+	private Block block() throws Exception{
+		Token first = t;
+		List<Stat> l = new ArrayList<Stat>();
+		while(!isKind(KW_return))
+		{
+			l.add(stat());
+		}
+		return new Block(first,l);  //this is OK for Assignment 2
+	}
+	
+	Stat stat() throws Exception
+	{
+		Token first,r = t;
+		Stat ret = null;
+		if(isKind(SEMI))
+		{
+			r=match(SEMI);
+		}
+		
+		return ret;	
+	}
 
 	Exp exp() throws Exception {
 		Token first = t;
@@ -501,17 +540,58 @@ public class ExpressionParser {
 		Token first = t;
 		Token r;
 		Exp e = null;
+		Exp e0 = null;
 		if(isKind(NAME))
 		{
 			r=match(NAME);
-			e = new ExpName(first);
+
+			e = new ExpName(r);
+
+			if(isKind(LSQUARE) | isKind(DOT))
+			{
+				e = pt(first,e);
+				//System.out.println(e.toString());
+			}
 		}
 		else if(isKind(LPAREN))
 		{
 			r=match(LPAREN);
 			e = exp();
 			r=match(RPAREN);
+			e = pt(first,e);
 		}
+		return e;
+	}
+	
+	private Exp pt(Token f, Exp name) throws Exception
+	{
+		Token first = t,r;
+		Exp e = null;
+		if(isKind(LSQUARE))
+		{
+			r = match(LSQUARE);
+			Exp e0 = exp();
+			r = match(RSQUARE);
+			e0 = new ExpTableLookup(f,name,e0);
+			Exp e1 = pt(first,e0);
+			if (e1 != null)
+				e = new ExpTableLookup(first,e0,e1);
+			else
+				e = e0;
+		}
+		else if(isKind(DOT))
+		{
+			r=match(DOT);
+			r=match(NAME);
+			Exp e0 = new ExpName(r);
+			e0 = new ExpTableLookup(f,name,e0);
+			Exp e1 = pt(first,e0);
+			if (e1 != null)
+				e = new ExpTableLookup(first,e0,e1);
+			else
+				e = e0;
+		}
+		
 		return e;
 	}
 
@@ -572,11 +652,6 @@ public class ExpressionParser {
 	private Exp andExp() throws Exception{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("andExp");  //I find this is a more useful placeholder than returning null.
-	}
-
-
-	private Block block() {
-		return new Block(null);  //this is OK for Assignment 2
 	}
 
 

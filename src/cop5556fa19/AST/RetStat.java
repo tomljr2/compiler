@@ -4,25 +4,25 @@ import java.util.List;
 
 import cop5556fa19.Token;
 
-public class ExpList extends ASTNode {
+public class RetStat extends Stat {
 
-	List<Exp> list;
+	List<Exp> el;
 
-	public ExpList(Token firstToken, List<Exp> list) {
+	public RetStat(Token firstToken, List<Exp> el) {
 		super(firstToken);
-		this.list = list;
+		this.el = el;
 	}
 
 	@Override
 	public String toString() {
-		return "ExpList [list=" + list + ", firstToken=" + firstToken + "]";
+		return "RetStat [el=" + el + ", firstToken=" + firstToken + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((list == null) ? 0 : list.hashCode());
+		result = prime * result + ((el == null) ? 0 : el.hashCode());
 		return result;
 	}
 
@@ -34,18 +34,18 @@ public class ExpList extends ASTNode {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ExpList other = (ExpList) obj;
-		if (list == null) {
-			if (other.list != null)
+		RetStat other = (RetStat) obj;
+		if (el == null) {
+			if (other.el != null)
 				return false;
-		} else if (!list.equals(other.list))
+		} else if (!el.equals(other.el))
 			return false;
 		return true;
 	}
 
 	@Override
 	public Object visit(ASTVisitor v, Object arg) throws Exception {
-		return v.visitExpList(this, arg);
+		return v.visitRetStat(this, arg);
 	}
 
 }
