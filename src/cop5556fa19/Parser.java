@@ -42,6 +42,14 @@ import cop5556fa19.AST.FuncBody;
 import cop5556fa19.AST.Name;
 import cop5556fa19.AST.ParList;
 import cop5556fa19.AST.Stat;
+import cop5556fa19.AST.StatAssign;
+import cop5556fa19.AST.StatBreak;
+import cop5556fa19.AST.StatDo;
+import cop5556fa19.AST.StatGoto;
+import cop5556fa19.AST.StatIf;
+import cop5556fa19.AST.StatLabel;
+import cop5556fa19.AST.StatRepeat;
+import cop5556fa19.AST.StatWhile;
 import cop5556fa19.AST.TableDeref;
 import cop5556fa19.Token.Kind;
 import static cop5556fa19.Token.Kind.*;
@@ -72,7 +80,7 @@ public class Parser {
 		return chunk;
 	}
 	
-	Chunk chunk() throws Exception
+	private Chunk chunk() throws Exception
 	{
 		Token first = t;
 		Block b = block();
@@ -80,25 +88,144 @@ public class Parser {
 	}
 
 	private Block block() throws Exception{
-		Token first = t;
+		Token first = t,r;
 		List<Stat> l = new ArrayList<Stat>();
-		while(!isKind(KW_return))
+		while(isKind(NAME) || isKind(LPAREN) || isKind(COLONCOLON) || isKind(KW_break) || isKind(KW_goto) || isKind(KW_do) ||
+				isKind(KW_while) || isKind(KW_repeat) ||isKind(KW_if) || isKind(KW_for) || isKind(KW_function) || isKind(KW_local)
+				|| isKind(SEMI))
 		{
-			l.add(stat());
+			if(isKind(SEMI)) r=match(SEMI);
+			else l.add(stat());
 		}
-		return new Block(first,l);  //this is OK for Assignment 2
+		return new Block(first,l);
 	}
 	
-	Stat stat() throws Exception
+	private Stat stat() throws Exception
 	{
-		Token first,r = t;
+		Token first= t,r;
 		Stat ret = null;
-		if(isKind(SEMI))
+
+		if(isKind(NAME) || isKind(LPAREN))
 		{
-			r=match(SEMI);
+			List<Exp> vl = varlist();
+			r=match(ASSIGN);
+			List<Exp> el = explist();
+			ret = new StatAssign(first,vl,el);
+		}
+		else if(isKind(COLONCOLON))
+		{
+			ret = new StatLabel(first,label());
+		}
+		else if(isKind(KW_break))
+		{
+			r=match(KW_break);
+			ret = new StatBreak(first);
+		}
+		else if(isKind(KW_goto))
+		{
+			r=match(KW_goto);
+			r=match(NAME);
+			ret = new StatGoto(first,new Name(first,r.text));
+		}
+		else if(isKind(KW_do))
+		{
+			r=match(KW_do);
+			Block b = block();
+			r=match(KW_end);
+			ret = new StatDo(first,b);
+		}
+		else if(isKind(KW_while))
+		{
+			r=match(KW_while);
+			Exp e0 = exp();
+			r=match(KW_do);
+			Block b = block();
+			r=match(KW_end);
+			ret=new StatWhile(first,e0,b);
+		}
+		else if(isKind(KW_repeat))
+		{
+			r=match(KW_repeat);
+			Block b = block();
+			r=match(KW_until);
+			Exp e = exp();
+			ret = new StatRepeat(first,b,e);
+		}
+		else if(isKind(KW_if))
+		{
+			List<Exp> el = new ArrayList<>();
+			List<Block> bl = new ArrayList<>();
+			r=match(KW_if);
+			el.add(exp());
+			r=match(KW_then);
+			bl.add(block());
+			while(isKind(KW_elseif))
+			{
+				r=match(KW_elseif);
+				el.add(exp());
+				r=match(KW_then);
+				bl.add(block());
+			}
+			if(isKind(KW_else))
+			{
+				r=match(KW_else);
+				bl.add(block());
+			}
+			r=match(KW_end);
+			ret = new StatIf(first,el,bl);
 		}
 		
 		return ret;	
+	}
+	
+	private Name label() throws Exception
+	{
+		Token first=t,r;
+		r=match(COLONCOLON);
+		r=match(NAME);
+		Name n = new Name(first,r.text);
+		r=match(COLONCOLON);
+		return n;
+	}
+	
+	private List<Exp> varlist() throws Exception
+	{
+		Token r;
+		List<Exp> l = new ArrayList<>();
+		l.add(var());
+		while(isKind(COMMA))
+		{
+			r=match(COMMA);
+			l.add(var());
+		}
+		return l;
+	}
+	
+	private Exp var() throws Exception
+	{
+		Token first = t,r;
+		Exp e = null;
+		Exp e0 = null;
+		if(isKind(NAME))
+		{
+			r=match(NAME);
+
+			e = new ExpName(r);
+			if(isKind(LSQUARE) || isKind(DOT) || isKind(LPAREN) || isKind(LCURLY) || isKind(COLON))
+				e0 = pt(first,e);
+		}
+		else if(isKind(LPAREN))
+		{
+			r=match(LPAREN);
+			e = exp();
+			r=match(RPAREN);
+			if(isKind(LSQUARE) || isKind(DOT) || isKind(LPAREN) || isKind(LCURLY) || isKind(COLON))
+			   e0 = pt(first,e);
+		}
+		if(e0 != null)
+		   return e0;
+		return e;
+		
 	}
 
 	Exp exp() throws Exception {
@@ -568,7 +695,7 @@ public class Parser {
 		if(isKind(LSQUARE))
 		{
 			r = match(LSQUARE);
-			Exp e0 = exp();
+			Exp e0 = new ExpString(exp().firstToken);
 			r = match(RSQUARE);
 			e0 = new ExpTableLookup(f,name,e0);
 			Exp e1 = pt(first,e0);
@@ -581,14 +708,14 @@ public class Parser {
 		{
 			r=match(DOT);
 			r=match(NAME);
-			Exp e0 = new ExpTableLookup(f,name,new ExpName(r));
+			Exp e0 = new ExpTableLookup(f,name,new ExpString(r));
 			Exp e1 = pt(first,e0);
 			if(e1 != null)
 				e = e1;
 			else
 				e =e0;
 		}
-		else if(isKind(LPAREN) | isKind(LCURLY) | isKind(STRINGLIT))
+		else if(isKind(LPAREN) || isKind(LCURLY) || isKind(STRINGLIT))
 		{
 			Exp e0 = new ExpFunctionCall(f,name,args());
 			Exp e1 = pt(first,e0);
@@ -601,7 +728,7 @@ public class Parser {
 		{
 			r=match(COLON);
 			r=match(NAME);
-			ExpName n1 = new ExpName(r);
+			Exp n1 = new ExpString(r);
 			List<Exp> l = args();
 			l.add(0,name);
 			Exp e0 = new ExpFunctionCall(f,new ExpTableLookup(f,name,n1),l);
@@ -631,9 +758,9 @@ public class Parser {
 		{
 			l.add(tableconstructor());
 		}
-		else if(isKind(STRINGLIT))
+		else
 		{
-			r=match(STRINGLIT);
+			r=match(t.kind);
 			l.add(new ExpString(r));
 		}
 		

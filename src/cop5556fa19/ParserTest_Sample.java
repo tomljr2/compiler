@@ -124,7 +124,7 @@ class ParserTest_Sample {
 	
 	@Test
 	void test0() throws Exception {
-		String input = "a[b][c][d]";
+		String input = "a[b][c][d] = 5";
 		Block b = parseBlockAndShow(input);		
 	}
 	
@@ -239,5 +239,67 @@ class ParserTest_Sample {
 		Chunk expectedChunk = new Chunk(expectedBlock.firstToken, expectedBlock);
 		assertEquals(expectedChunk,c);
 	}
+	
+	@Test
+	void testNameChunk1() throws Exception {
+		String input = "::slimshady::";
+		ASTNode c = parseAndShow(input);	
+		StatLabel s1 = Expressions.makeStatLabel("slimshady");
+		Block b = Expressions.makeBlock(s1);
+		Chunk expected = new Chunk(b.firstToken,b);
+		assertEquals(expected,c);	
+	}
+	
+	@Test
+	void testBreakChunk1() throws Exception {
+		String input = "::slimshady:: break";
+		ASTNode c = parseAndShow(input);	
+		StatLabel s1 = Expressions.makeStatLabel("slimshady");
+		StatBreak statBreak = Expressions.makeStatBreak();
+		Block b = Expressions.makeBlock(s1,statBreak);
+		Chunk expected = new Chunk(b.firstToken,b);
+		assertEquals(expected,c);	
+	}
+	
+	@Test
+	void testgotoChunk1() throws Exception {
+		String input = "::slimshady:: goto slimshady";
+		ASTNode c = parseAndShow(input);	
+		StatLabel s1 = Expressions.makeStatLabel("slimshady");
+		Stat s3 = Expressions.makeStatGoto("slimshady");
+		Block b = Expressions.makeBlock(s1,s3);
+		Chunk expected = new Chunk(b.firstToken,b);
+		assertEquals(expected,c);	
+	}	
+	
+	@Test
+	void testWhileChunk1() throws Exception {
+		String input = "while true do ::x::; x=g.a end";
+		ASTNode c = parseAndShow(input);
+	}	
+	
+	@Test
+	void testRepeatChunk1() throws Exception {
+		String input = "repeat ::x::; x=g(a) until true";
+		ASTNode c = parseAndShow(input);
+	}	
+	
+	@Test
+	void testIfChunk1() throws Exception {
+		String input = "if x==y then x=g(a)[b] end";
+		ASTNode c = parseAndShow(input);
+	}	
+	
+	@Test
+	void testIfChunk2() throws Exception {
+		String input = "if x==y then x=g(a)[b] elseif x>y then y=g[b](a) end";
+		ASTNode c = parseAndShow(input);
+	}	
+	
+	@Test
+	void testIfChunk3() throws Exception {
+		String input = "if x==y then x=g(a)[b] elseif x>y then y=g[b](a) else x,y = a.b.c[g] , g[a].b(c) end";
+		ASTNode c = parseAndShow(input);
+	}	
 }
 

@@ -316,4 +316,10 @@ class ExpressionParserTest {
 		Exp e2 = parseAndShow(input);
 		assertEquals(e,e2);
 	}
+
+	@Test
+	void test11() throws Exception {
+		String input = "g.a.b = 3";
+		Exp e = parseAndShow(input);
+	}
 }
