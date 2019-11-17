@@ -115,8 +115,8 @@ class ParserTest {
 	void testAssign1() throws Exception {
 		String input = "a=b";
 		Block b = parseBlockAndShow(input);		
-		List<Exp> lhs = Expressions.makeExpList(Expressions.makeExpName("a"));
-		List<Exp> rhs = Expressions.makeExpList(Expressions.makeExpName("b"));
+		List<Exp> lhs = Expressions.makeExpList(Expressions.makeExpNameGlobal("a"));
+		List<Exp> rhs = Expressions.makeExpList(Expressions.makeExpNameGlobal("b"));
 		StatAssign s = Expressions.makeStatAssign(lhs,rhs);
 		Block expected = Expressions.makeBlock(s);
 		assertEquals(expected,b);
@@ -132,8 +132,8 @@ class ParserTest {
 	void testAssignChunk1() throws Exception {
 		String input = "a=b";
 		ASTNode c = parseAndShow(input);		
-		List<Exp> lhs = Expressions.makeExpList(Expressions.makeExpName("a"));
-		List<Exp> rhs = Expressions.makeExpList(Expressions.makeExpName("b"));
+		List<Exp> lhs = Expressions.makeExpList(Expressions.makeExpNameGlobal("a"));
+		List<Exp> rhs = Expressions.makeExpList(Expressions.makeExpNameGlobal("b"));
 		StatAssign s = Expressions.makeStatAssign(lhs,rhs);
 		Block b = Expressions.makeBlock(s);
 		Chunk expected = new Chunk(b.firstToken,b);
@@ -146,8 +146,8 @@ class ParserTest {
 		String input = "a,c=8,9";
 		Block b = parseBlockAndShow(input);		
 		List<Exp> lhs = Expressions.makeExpList(
-					Expressions.makeExpName("a")
-					,Expressions.makeExpName("c"));
+					Expressions.makeExpNameGlobal("a")
+					,Expressions.makeExpNameGlobal("c"));
 		Exp e1 = Expressions.makeExpInt(8);
 		Exp e2 = Expressions.makeExpInt(9);
 		List<Exp> rhs = Expressions.makeExpList(e1,e2);
@@ -164,12 +164,12 @@ class ParserTest {
 		String input = "a,c=8,f(x)";
 		Block b = parseBlockAndShow(input);		
 		List<Exp> lhs = Expressions.makeExpList(
-					Expressions.makeExpName("a")
-					,Expressions.makeExpName("c"));
+					Expressions.makeExpNameGlobal("a")
+					,Expressions.makeExpNameGlobal("c"));
 		Exp e1 = Expressions.makeExpInt(8);
 		List<Exp> args = new ArrayList<>();
-		args.add(Expressions.makeExpName("x"));
-		Exp e2 = Expressions.makeExpFunCall(Expressions.makeExpName("f"),args, null);
+		args.add(Expressions.makeExpNameGlobal("x"));
+		Exp e2 = Expressions.makeExpFunCall(Expressions.makeExpNameGlobal("f"),args, null);
 		List<Exp> rhs = Expressions.makeExpList(e1,e2);
 		StatAssign s = Expressions.makeStatAssign(lhs,rhs);
 		Block expected = Expressions.makeBlock(s);
@@ -182,7 +182,7 @@ class ParserTest {
 	void testAssignToTable() throws Exception {
 		String input = "g.a.b = 3";
 		Block bl = parseBlockAndShow(input);
-		ExpName g = Expressions.makeExpName("g");
+		ExpName g = Expressions.makeExpNameGlobal("g");
 		ExpString a = Expressions.makeExpString("a");
 		Exp gtable = Expressions.makeExpTableLookup(g,a);
 		ExpString b = Expressions.makeExpString("b");
@@ -197,12 +197,12 @@ class ParserTest {
 	void testAssignTableToVar() throws Exception {
 		String input = "x = g.a.b";
 		Block bl = parseBlockAndShow(input);
-		ExpName g = Expressions.makeExpName("g");
+		ExpName g = Expressions.makeExpNameGlobal("g");
 		ExpString a = Expressions.makeExpString("a");
 		Exp gtable = Expressions.makeExpTableLookup(g,a);
 		ExpString b = Expressions.makeExpString("b");
 		Exp e = Expressions.makeExpTableLookup(gtable, b);
-		Exp v = Expressions.makeExpName("x");		
+		Exp v = Expressions.makeExpNameGlobal("x");		
 		Stat s = Expressions.makeStatAssign(Expressions.makeExpList(v), Expressions.makeExpList(e));;
 		Block expected = Expressions.makeBlock(s);
 		assertEquals(expected,bl);
@@ -214,20 +214,20 @@ class ParserTest {
 	void testmultistatements6() throws Exception {
 		String input = "x = g.a.b ; ::mylabel:: do  y = 2 goto mylabel f=a(0,200) end break"; //same as testmultistatements0 except ;
 		ASTNode c = parseAndShow(input);
-		ExpName g = Expressions.makeExpName("g");
+		ExpName g = Expressions.makeExpNameGlobal("g");
 		ExpString a = Expressions.makeExpString("a");
 		Exp gtable = Expressions.makeExpTableLookup(g,a);
 		ExpString b = Expressions.makeExpString("b");
 		Exp e = Expressions.makeExpTableLookup(gtable, b);
-		Exp v = Expressions.makeExpName("x");		
+		Exp v = Expressions.makeExpNameGlobal("x");		
 		Stat s0 = Expressions.makeStatAssign(v,e);
 		StatLabel s1 = Expressions.makeStatLabel("mylabel");
-		Exp y = Expressions.makeExpName("y");
+		Exp y = Expressions.makeExpNameGlobal("y");
 		Exp two = Expressions.makeExpInt(2);
 		Stat s2 = Expressions.makeStatAssign(y,two);
 		Stat s3 = Expressions.makeStatGoto("mylabel");
-		Exp f = Expressions.makeExpName("f");
-		Exp ae = Expressions.makeExpName("a");
+		Exp f = Expressions.makeExpNameGlobal("f");
+		Exp ae = Expressions.makeExpNameGlobal("a");
 		Exp zero = Expressions.makeExpInt(0);
 		Exp twohundred = Expressions.makeExpInt(200);
 		List<Exp> args = Expressions.makeExpList(zero, twohundred);
@@ -371,13 +371,7 @@ class ParserTest {
 	@Test
 	void test1() throws Exception {
 		String input = "{}";
-		Block b = parseBlockAndShow(input);		
-	}
-
-	@Test
-	void test2() throws Exception {
-		String input = "function (...) end";
-		Block b = parseBlockAndShow(input);		
+		Block b = parseBlockAndShow(input);	
 	}
 }
 

@@ -76,7 +76,7 @@ public class FunctionCall extends Exp {
 
 	@Override
 	public Object visit(ASTVisitor v, Object arg) throws Exception {
-		return v.visitFunctionCall(this, arg);
+		return null;//v.visitFunctionCall(this, arg);	// This may need to be fixed
 	}
 
 }

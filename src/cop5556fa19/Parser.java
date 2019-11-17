@@ -76,7 +76,7 @@ public class Parser {
 	Token t;  //invariant:  this is the next token
 
 
-	Parser(Scanner s) throws Exception {
+	public Parser(Scanner s) throws Exception {
 		this.scanner = s;
 		t = scanner.getNext(); //establish invariant
 	}
@@ -133,7 +133,7 @@ public class Parser {
 		}
 		else if(isKind(COLONCOLON))
 		{
-			ret = new StatLabel(first,label());
+			ret = new StatLabel(first,label(),null,-1);	//Change this
 		}
 		else if(isKind(KW_break))
 		{
@@ -901,8 +901,8 @@ public class Parser {
 
 	private ExpFunction functiondef() throws Exception
 	{
-		Token r=match(KW_function);
 		Token first = t;
+		Token r=match(KW_function);
 		FuncBody fb = functionbody();
 		return new ExpFunction(first,fb);
 	}

@@ -657,14 +657,4 @@ class ScannerTest {
 		   s.getNext();
         });
 	}
-	
-	@Test
-	void test24() throws Exception {
-		String str = "--cc";
-		Reader r = new StringReader(str);
-		Scanner s = new Scanner(r);
-        assertThrows(LexicalException.class, ()->{
-		   s.getNext();
-        });
-	}
 }
