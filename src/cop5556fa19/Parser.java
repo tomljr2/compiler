@@ -901,8 +901,8 @@ public class Parser {
 
 	private ExpFunction functiondef() throws Exception
 	{
-		Token first = t;
 		Token r=match(KW_function);
+		Token first = t;
 		FuncBody fb = functionbody();
 		return new ExpFunction(first,fb);
 	}
@@ -924,7 +924,7 @@ public class Parser {
 	private ParList parlist(boolean hasVar) throws Exception
 	{
 		Token first = t;
-		List<Name> l = null;
+		List<Name> l = new ArrayList<>();
 		if(isKind(NAME))
 		{
 			l=namelist(hasVar);

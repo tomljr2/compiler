@@ -322,4 +322,22 @@ class ExpressionParserTest {
 		String input = "g.a.b = 3";
 		Exp e = parseAndShow(input);
 	}
+
+	@Test
+	void test12() throws Exception {
+		String input = "function (aa, b) end >> function(test, l, ...) end & function(...) end";
+		Exp e = parseAndShow(input);
+	}
+
+	@Test
+	void test13() throws Exception {
+		String input = "{}";
+		Exp e = parseAndShow(input);
+	}
+
+	@Test
+	void test14() throws Exception {
+		String input = "function (...) end";
+		Exp e = parseAndShow(input);
+	}
 }

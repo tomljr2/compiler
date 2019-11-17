@@ -44,7 +44,7 @@ import cop5556fa19.Token;
 
 import static cop5556fa19.Token.Kind.*;
 
-class ParserTest_Sample {
+class ParserTest {
 
 	// To make it easy to print objects and turn this output on and off
 	static final boolean doPrint = true;
@@ -365,6 +365,18 @@ class ParserTest_Sample {
 	@Test
 	void testLocalMultiAssign2() throws Exception {
 		String input = "local a=b";
+		Block b = parseBlockAndShow(input);		
+	}
+
+	@Test
+	void test1() throws Exception {
+		String input = "{}";
+		Block b = parseBlockAndShow(input);		
+	}
+
+	@Test
+	void test2() throws Exception {
+		String input = "function (...) end";
 		Block b = parseBlockAndShow(input);		
 	}
 }
