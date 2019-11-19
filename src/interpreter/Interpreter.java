@@ -88,11 +88,25 @@ public class Interpreter extends ASTVisitorAdapter{
 				return new LuaInt(((LuaInt)r1).v^((LuaInt)r2).v);
 			else if(expBin.op==OP_DIVDIV)
 				return new LuaInt(Math.floorDiv(((LuaInt)r1).v,((LuaInt)r2).v));
+			else if(expBin.op==BIT_AMP)
+				return new LuaInt(((LuaInt)r1).v&((LuaInt)r2).v);
+			else if(expBin.op==BIT_OR)
+				return new LuaInt(((LuaInt)r1).v|((LuaInt)r2).v);
+			else if(expBin.op==BIT_XOR)
+				return new LuaInt(((LuaInt)r1).v^((LuaInt)r2).v);
+			else if(expBin.op==BIT_SHIFTR)
+				return new LuaInt(((LuaInt)r1).v>>((LuaInt)r2).v);
+			else if(expBin.op==BIT_SHIFTL)
+				return new LuaInt(((LuaInt)r1).v<<((LuaInt)r2).v);
+			else if(expBin.op==DOTDOT)
+				return new LuaInt(Integer.parseInt(Integer.toString(((LuaInt)r1).v)+Integer.toString(((LuaInt)r2).v)));
 		}
 		if(r1.getClass().equals(new LuaString("").getClass()))
 		{
 			if(expBin.op==OP_PLUS)
 			   return new LuaString(((LuaString)r1).value+((LuaString)r2).value);
+			if(expBin.op==DOTDOT)
+				   return new LuaString(((LuaString)r1).value+((LuaString)r2).value);
 		}
 		throw new interpreter.StaticSemanticException(expBin.firstToken,"Unsupported operation");
 	}	
