@@ -8,6 +8,7 @@ import java.util.HashMap;
 import cop5556fa19.Parser;
 import cop5556fa19.Scanner;
 import cop5556fa19.AST.*;
+import static cop5556fa19.Token.Kind.*;
 import interpreter.built_ins.print;
 import interpreter.built_ins.println;
 import interpreter.built_ins.toNumber;
@@ -66,7 +67,27 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitExpBin(ExpBinary expBin, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		LuaValue r1 = (LuaValue)expBin.e0.visit(this, arg); 
+		LuaValue r2 = (LuaValue)expBin.e1.visit(this, arg); 
+		if(!r1.getClass().equals(r2.getClass()))
+			throw new TypeException(expBin.firstToken,"Incompatible types from binary operator");
+		if(r1.getClass().equals(new LuaInt(0).getClass()))
+		{
+			if(expBin.op==OP_PLUS)
+			   return new LuaInt(((LuaInt)r1).v+((LuaInt)r2).v);
+			else if(expBin.op==OP_MINUS)
+				return new LuaInt(((LuaInt)r1).v-((LuaInt)r2).v);
+			else if(expBin.op==OP_TIMES)
+				return new LuaInt(((LuaInt)r1).v*((LuaInt)r2).v);
+			else if(expBin.op==OP_DIV)
+				return new LuaInt(((LuaInt)r1).v/((LuaInt)r2).v);
+		}
+		if(r1.getClass().equals(new LuaString("").getClass()))
+		{
+			if(expBin.op==OP_PLUS)
+			   return new LuaString(((LuaString)r1).value+((LuaString)r2).value);
+		}
+		throw new interpreter.StaticSemanticException(expBin.firstToken,"Unsupported operation");
 	}	
 
 	@Override

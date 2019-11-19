@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import cop5556fa19.Parser.SyntaxException;
 import interpreter.ASTVisitorAdapter;
+import interpreter.ASTVisitorAdapter.TypeException;
 import interpreter.Interpreter;
 import interpreter.LuaInt;
 import interpreter.LuaNil;
@@ -118,6 +119,46 @@ import interpreter.StaticSemanticException;
 			List<LuaValue> ret = interpret(input);
 			show(ret);
 			List<LuaValue> expected = makeExpectedWithInts(42);
+			assertEquals(expected, ret);
+		}
+		
+		@Test
+		void run4() throws Exception{
+			String input = "x=35  y=42 return x+y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			LuaValue[] vals = {new LuaInt(77)};
+			List<LuaValue> expected = Arrays.asList(vals);
+			assertEquals(expected, ret);
+		}
+		
+		@Test 
+		void run5() throws Exception {
+			String input = "x = 35 return x+y";
+			show(input);
+			assertThrows(TypeException.class,()->{
+				List<LuaValue> ret = interpret(input);
+			});		
+		}
+		
+		@Test 
+		void run6() throws Exception {
+			String input = "x = \"hi\" y = \"hello\" return x/y";
+			show(input);
+			assertThrows(StaticSemanticException.class,()->{
+				List<LuaValue> ret = interpret(input);
+			});		
+		}
+		
+		@Test
+		void run7() throws Exception{
+			String input = "x = \"hi\" y = \"hello\" return x+y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			LuaValue[] vals = {new LuaString("hihello")};
+			List<LuaValue> expected = Arrays.asList(vals);
 			assertEquals(expected, ret);
 		}
 		
