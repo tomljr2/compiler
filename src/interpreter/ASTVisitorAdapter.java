@@ -75,7 +75,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitExpNil(ExpNil expNil, Object arg) {
-		return LuaNil.nil;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -90,12 +90,12 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitExpInt(ExpInt expInt, Object arg) {
-		return new LuaInt(expInt.v);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Object visitExpString(ExpString expString, Object arg) {
-		return new LuaString(expString.v);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -125,15 +125,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
-		List<Object> l = new ArrayList<Object>();
-		List<Stat> s = block.stats;
-		for(int i = 0; i < s.size(); i++)
-		{
-			Object t = s.get(i).visit(this, arg);
-			if(t!=null && t.getClass().equals(new ArrayList<RetStat>().getClass()))
-				return t;
-		}
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -153,7 +145,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitStatDo(StatDo statDo, Object arg) throws Exception {
-		return statDo.b.visit(this, arg);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -168,17 +160,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitStatIf(StatIf statIf, Object arg) throws Exception {
-		for(int i = 0; i < statIf.es.size();i++)
-		{
-			LuaValue condition = (LuaValue)statIf.es.get(i).visit(this, arg);
-			if(!condition.equals(new LuaInt(0)) && !condition.equals(LuaNil.nil))
-				return statIf.bs.get(i).visit(this, arg);
-		}
-		if(statIf.es.size() != statIf.bs.size())	//No else
-		{
-			return statIf.bs.get(statIf.bs.size()-1).visit(this, arg);
-		}
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -213,15 +195,12 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitRetStat(RetStat retStat, Object arg) throws Exception {
-		List<Object> l = new ArrayList<Object>();
-		for(int i = 0; i < retStat.el.size();i++)
-			l.add(retStat.el.get(i).visit(this, arg));
-		return l;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Object visitChunk(Chunk chunk, Object arg) throws Exception {
-		return chunk.block.visit(this, arg);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -241,12 +220,12 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitExpTrue(ExpTrue expTrue, Object arg) {
-		return new LuaInt(1);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Object visitExpFalse(ExpFalse expFalse, Object arg) {
-		return new LuaInt(0);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -261,31 +240,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitStatAssign(StatAssign statAssign, Object arg) throws Exception {
-		int diff = statAssign.varList.size() - statAssign.expList.size();
-		if(diff < 0)
-		{
-			statAssign = new StatAssign(statAssign.firstToken,
-					statAssign.varList,statAssign.expList.subList(0, statAssign.expList.size()+diff));
-		}
-		else if (diff>0)
-		{
-			while(diff!=0)
-			{
-				statAssign.expList.add(ExpNil.expNilConst);
-				diff--;
-			}
-		}
-		List<LuaValue[]> temp = new ArrayList<>();
-		for(int i = 0; i < statAssign.expList.size();i++)
-		{
-			LuaValue r = (LuaValue)statAssign.expList.get(i).visit(this, arg);
-			LuaValue l = new LuaString(((ExpName)statAssign.varList.get(i)).name);
-			LuaValue[] lr= new LuaValue[]{l,r};
-			temp.add(lr);
-		}
-		for(int i = 0; i < temp.size(); i++)
-			((LuaTable)arg).put(temp.get(i)[0], temp.get(i)[1]);
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -299,7 +254,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 	}
 
 	@Override
-	public Object visitLabel(StatLabel statLabel, Object ar) {
+	public Object visitLabel(StatLabel statLabel, Object arg) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -310,10 +265,7 @@ public abstract class ASTVisitorAdapter implements ASTVisitor {
 
 	@Override
 	public Object visitExpName(ExpName expName, Object arg) throws Exception{
-		LuaValue res = ((LuaTable)arg).get(new LuaString(expName.name));
-		if (res != LuaNil.nil)
-			return res;
-		return LuaNil.nil;
+		throw new UnsupportedOperationException();
 	}
 
 

@@ -27,7 +27,7 @@ public class Block extends Stat {
 		result = prime * result + ((stats == null) ? 0 : stats.hashCode());
 		return result;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

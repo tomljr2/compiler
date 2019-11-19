@@ -24,7 +24,7 @@ import interpreter.StaticSemanticException;
 	class TestInterpreter{
 
 		// To make it easy to print objects and turn this output on and off
-		static final boolean doPrint = true;
+		static final boolean doPrint = false;
 //		static final boolean doPrint = false;
 
 		private void show(Object input) {
@@ -68,7 +68,7 @@ import interpreter.StaticSemanticException;
 			}
 			return l;
 		}
-		
+	
 		
 		@Test
 		void runEmpty() throws Exception{

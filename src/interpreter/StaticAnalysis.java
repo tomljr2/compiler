@@ -1,8 +1,10 @@
 package interpreter;
 
-import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap; 
 
+import cop5556fa19.AST.ASTNode;
 import cop5556fa19.AST.ASTVisitor;
 import cop5556fa19.AST.Block;
 import cop5556fa19.AST.Chunk;
@@ -29,6 +31,7 @@ import cop5556fa19.AST.FuncName;
 import cop5556fa19.AST.Name;
 import cop5556fa19.AST.ParList;
 import cop5556fa19.AST.RetStat;
+import cop5556fa19.AST.Stat;
 import cop5556fa19.AST.StatAssign;
 import cop5556fa19.AST.StatBreak;
 import cop5556fa19.AST.StatDo;
@@ -47,7 +50,6 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitExpNil(ExpNil expNil, Object arg) throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -107,7 +109,16 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		List<Stat> s = block.stats;
+		for(int i = 0; i < s.size(); i++)
+		{
+			if(s.get(i).getClass().equals(new StatLabel(null,null,null,-1).getClass()))
+			{
+				((StatLabel)s.get(i)).setIndex(i);
+				((StatLabel)s.get(i)).setParent(block);
+			}
+			s.get(i).visit(this, arg);
+		}
 		return null;
 	}
 
@@ -148,7 +159,10 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitStatIf(StatIf statIf, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		for(int i = 0; i < statIf.bs.size();i++)
+		{
+			statIf.bs.get(i).visit(this, arg);
+		}
 		return null;
 	}
 
@@ -196,7 +210,7 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitChunk(Chunk chunk, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		chunk.block.visit(this, arg);
 		return null;
 	}
 
@@ -261,9 +275,9 @@ public class StaticAnalysis implements ASTVisitor{
 	}
 
 	@Override
-	public Object visitLabel(StatLabel statLabel, Object ar) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Object visitLabel(StatLabel statLabel, Object arg) throws Exception {
+		((HashMap<Name,Object[]>)arg).put(statLabel.label, new Object[] {statLabel.getParent(),statLabel.getIndex()});
+		return 1;
 	}
 
 	@Override
