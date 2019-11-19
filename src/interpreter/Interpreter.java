@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap; 
+import java.lang.Math;
 
 import cop5556fa19.Parser;
 import cop5556fa19.Scanner;
@@ -85,6 +86,8 @@ public class Interpreter extends ASTVisitorAdapter{
 				return new LuaInt(((LuaInt)r1).v%((LuaInt)r2).v);
 			else if(expBin.op==OP_POW)
 				return new LuaInt(((LuaInt)r1).v^((LuaInt)r2).v);
+			else if(expBin.op==OP_DIVDIV)
+				return new LuaInt(Math.floorDiv(((LuaInt)r1).v,((LuaInt)r2).v));
 		}
 		if(r1.getClass().equals(new LuaString("").getClass()))
 		{
