@@ -81,6 +81,10 @@ public class Interpreter extends ASTVisitorAdapter{
 				return new LuaInt(((LuaInt)r1).v*((LuaInt)r2).v);
 			else if(expBin.op==OP_DIV)
 				return new LuaInt(((LuaInt)r1).v/((LuaInt)r2).v);
+			else if(expBin.op==OP_MOD)
+				return new LuaInt(((LuaInt)r1).v%((LuaInt)r2).v);
+			else if(expBin.op==OP_POW)
+				return new LuaInt(((LuaInt)r1).v^((LuaInt)r2).v);
 		}
 		if(r1.getClass().equals(new LuaString("").getClass()))
 		{
