@@ -46,8 +46,11 @@ import cop5556fa19.AST.StatLocalFunc;
 import cop5556fa19.AST.StatRepeat;
 import cop5556fa19.AST.StatWhile;
 
+
 public class StaticAnalysis implements ASTVisitor{
 
+    ArrayList<Block> blockList;
+    
 	@Override
 	public Object visitExpNil(ExpNil expNil, Object arg) throws Exception {
 		return null;
@@ -109,16 +112,18 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
+		
 		List<Stat> s = block.stats;
+		blockList.add(block);
 		for(int i = 0; i < s.size(); i++)
 		{
 			if(s.get(i).getClass().equals(new StatLabel(null,null,null,-1).getClass()))
 			{
 				((StatLabel)s.get(i)).setIndex(i);
-				((StatLabel)s.get(i)).setParent(block);
 			}
 			s.get(i).visit(this, arg);
 		}
+		blockList.remove(blockList.size()-1);
 		return null;
 	}
 
@@ -135,13 +140,16 @@ public class StaticAnalysis implements ASTVisitor{
 	}
 
 	@Override
-	public Object visitStatGoto(StatGoto statGoto, Object arg) throws Exception {
+	public Object visitStatGoto(StatGoto statGoto, Object arg) throws Exception {		
+		((HashMap<Integer,ArrayList<Block>>)(((Object[])arg)[1])).put(statGoto.hashCode(), 
+				(ArrayList<Block>)blockList.clone());
 		return null;
 	}
 
 	@Override
 	public Object visitStatDo(StatDo statDo, Object arg) throws Exception {
 		// TODO Auto-generated method stub
+		statDo.b.visit(this,arg);
 		return null;
 	}
 
@@ -210,6 +218,7 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitChunk(Chunk chunk, Object arg) throws Exception {
+		blockList=new ArrayList<>();
 		chunk.block.visit(this, arg);
 		return null;
 	}
@@ -276,7 +285,10 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitLabel(StatLabel statLabel, Object arg) throws Exception {
-		((HashMap<Name,Object[]>)arg).put(statLabel.label, new Object[] {statLabel.getParent(),statLabel.getIndex()});
+		if(((HashMap<Name,Object[]>)(((Object[])arg)[0])).get(statLabel.label)!=null)
+			return -1;
+		((HashMap<Name,Object[]>)(((Object[])arg)[0])).put(statLabel.label, new Object[] 
+						{(ArrayList<Block>)blockList.clone(),statLabel.index});
 		return 1;
 	}
 

@@ -21,7 +21,9 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	
 	LuaTable _G; //global environment
-	HashMap<Name,Object[]> _H;
+	HashMap<Name,Object[]> _L;
+	HashMap<Integer,ArrayList<Block>> _GT;
+	
 
 	/* Instantiates and initializes global environment
 	 * 
@@ -41,7 +43,8 @@ public class Interpreter extends ASTVisitorAdapter{
 		
 	public Interpreter() {
 		init_G();
-		_H = new HashMap<>();
+		_L = new HashMap<>();
+		_GT = new HashMap<>();
 	}
 	
 
@@ -54,7 +57,7 @@ public class Interpreter extends ASTVisitorAdapter{
 		root = chunk;
 		//Perform static analysis to prepare for goto.  Uncomment after u
 		StaticAnalysis hg = new StaticAnalysis();
-		chunk.visit(hg,_H);	
+		chunk.visit(hg,new Object[] {_L,_GT});	
 		//Interpret the program and return values returned from chunk.visit
 		List<LuaValue> vals = (List<LuaValue>) chunk.visit(this,_G);
 		return vals;
@@ -159,6 +162,8 @@ public class Interpreter extends ASTVisitorAdapter{
 			Object t = s.get(i).visit(this,((Object[])arg)[0]);
 			if(t!=null && t.getClass().equals(new ArrayList<RetStat>().getClass()))
 				return t;
+			if(s.get(i).getClass().equals(new StatGoto(null,null).getClass()))
+				break;
 		}
 		return null;
 	}
@@ -176,12 +181,19 @@ public class Interpreter extends ASTVisitorAdapter{
 	@Override
 	public Object visitStatGoto(StatGoto statGoto, Object arg) throws Exception {
 		try {
-			Object[] l= _H.get(statGoto.name);
-			return ((Block)(l[0])).visit(this, new Object[]{arg,l[1]});
+			ArrayList<Block> l= (ArrayList<Block>)(_L.get(statGoto.name)[0]);
+			ArrayList<Block> gt = _GT.get(statGoto.hashCode());
+			
+	//		if(l.get(l.size()-1)==gt.get(gt.size()-1))
+	//			throw new interpreter.StaticSemanticException(statGoto.firstToken,"Incorrect goto usage.");
+			if(gt.contains(l.get(l.size()-1)))
+				return l.get(l.size()-1).visit(this, new Object[] {arg,(int)(_L.get(statGoto.name)[1])});
+			
+			throw new interpreter.StaticSemanticException(statGoto.firstToken, "Incorrect goto usage");
 		}
 		catch(NullPointerException e)
 		{
-			throw new StaticSemanticException(statGoto.firstToken,"Incorrect goto usage.");
+			throw new interpreter.StaticSemanticException(statGoto.firstToken,"Incorrect goto usage.");
 		}
 	}
 
