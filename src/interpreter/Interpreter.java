@@ -143,7 +143,25 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitExpTable(ExpTable expTableConstr, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		LuaTable ret = new LuaTable();
+		if(expTableConstr.fields != null)
+		   for(int i = 0; i < expTableConstr.fields.size();i++)
+		   {
+			   Field f = expTableConstr.fields.get(i);
+			   Object o = f.visit(this, arg);
+			   if(f.getClass().equals(FieldImplicitKey.class))
+			      ret.putImplicit((LuaValue)o);
+			   else if(f.getClass().equals(FieldExpKey.class))
+			   {
+			      ret.put((LuaValue)((Object[])o)[0],(LuaValue)((Object[])o)[1]);
+			   }
+			   else if(o.getClass().equals(LuaString.class))
+			   {
+				   ret.put((LuaString)o, ((LuaTable)arg).get((LuaString)o));
+			   }
+		   }
+		
+		return ret;
 	}
 
 	@Override
@@ -169,13 +187,17 @@ public class Interpreter extends ASTVisitorAdapter{
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
 		List<Stat> s = block.stats;
+		Object t=null;
 		for(int i = (int)(((Object[])arg)[1]); i < s.size(); i++)
 		{
-			Object t = s.get(i).visit(this,((Object[])arg)[0]);
+			t = s.get(i).visit(this,((Object[])arg)[0]);
 			if(t!=null && t.getClass().equals(new ArrayList<RetStat>().getClass()))
 				return t;
-			if(s.get(i).getClass().equals(new StatBreak(null).getClass()))
-				return t;
+			if(t!=null && t.getClass().equals(Integer.class))
+			{
+				if((Integer)t==-1)
+					return t;
+			}
 			if(s.get(i).getClass().equals(new StatGoto(null,null).getClass()))
 				break;
 		}
@@ -211,7 +233,11 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitStatDo(StatDo statDo, Object arg) throws Exception {
-		return statDo.b.visit(this, new Object[] {arg,0});
+		Object t = statDo.b.visit(this, new Object[] {arg,0});
+		if(t!=null && t.getClass().equals(Integer.class))
+			if((Integer)t==-1)
+				return null;
+		return t;
 	}
 
 	@Override
@@ -219,7 +245,11 @@ public class Interpreter extends ASTVisitorAdapter{
 		LuaBoolean condition = (LuaBoolean)statWhile.e.visit(this, arg);
 		while(condition.value)
 		{
-			statWhile.b.visit(this, new Object[] {arg,0});
+			Object t=statWhile.b.visit(this, new Object[] {arg,0});
+			
+			if(t!=null && t.getClass().equals(Integer.class))
+			   if((Integer)t==-1)
+			      break;
 			condition = (LuaBoolean)statWhile.e.visit(this, arg);
 		}
 		return null;
@@ -289,18 +319,20 @@ public class Interpreter extends ASTVisitorAdapter{
 	}
 
 	@Override
-	public Object visitFieldExpKey(FieldExpKey fieldExpKey, Object object) throws Exception {
-		throw new UnsupportedOperationException();
+	public Object visitFieldExpKey(FieldExpKey fieldExpKey, Object arg) throws Exception {
+		return new Object[] {fieldExpKey.key.visit(this, arg),fieldExpKey.value.visit(this, arg)};
 	}
 
 	@Override
 	public Object visitFieldNameKey(FieldNameKey fieldNameKey, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		((LuaTable)arg).put(new LuaString(fieldNameKey.name.name), 
+				(LuaValue)fieldNameKey.exp.visit(this, arg));
+		return new LuaString(fieldNameKey.name.name);
 	}
 	
 	@Override
 	public Object visitFieldImplicitKey(FieldImplicitKey fieldImplicitKey, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		return fieldImplicitKey.exp.visit(this, arg);
 	}
 
 	@Override
@@ -343,18 +375,37 @@ public class Interpreter extends ASTVisitorAdapter{
 		for(int i = 0; i < statAssign.expList.size();i++)
 		{
 			LuaValue r = (LuaValue)statAssign.expList.get(i).visit(this, arg);
-			LuaValue l = new LuaString(((ExpName)statAssign.varList.get(i)).name);
+			Exp s = statAssign.varList.get(i);
+			LuaValue l = null;
+			if(s.getClass().equals(ExpName.class))
+			   l = new LuaString(((ExpName)s).name);
+			else if(s.getClass().equals(ExpTableLookup.class))
+				l = (LuaValue)s.visit(this, new Object[] {arg,r});
 			LuaValue[] lr= new LuaValue[]{l,r};
 			temp.add(lr);
 		}
 		for(int i = 0; i < temp.size(); i++)
 			((LuaTable)arg).put(temp.get(i)[0], temp.get(i)[1]);
-		return null;
+		return ((LuaTable)arg).copy();
 	}
 
 	@Override
 	public Object visitExpTableLookup(ExpTableLookup expTableLookup, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		if(!arg.getClass().equals(Object[].class))
+		{
+			LuaString q = new LuaString(((ExpString)(expTableLookup.key)).v);
+			LuaTable t = ((LuaTable)expTableLookup.table.visit(this, arg));
+		    return t.get(q);
+		}
+		else
+		{
+			System.out.println(expTableLookup.key);
+			LuaValue q = (LuaValue)(((LuaTable)(((Object[])arg)[0])).get
+					((LuaValue)(expTableLookup.key.visit(this, ((Object[])arg)[0]))));
+			LuaTable t = ((LuaTable)expTableLookup.table.visit(this, ((Object[])arg)[0]));
+		    t.put(q,(LuaValue)((Object[])arg)[1]);
+		}
+		return null;
 	}
 
 	@Override

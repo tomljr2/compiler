@@ -382,34 +382,6 @@ import interpreter.StaticSemanticException;
 			assertEquals(expected,ret);			
 		}	
 		
-		
-		@Test
-		void table5() throws Exception {
-			String input = ""
-					+ "f1 = 777"
-					+ "\na = { [f1] = g, "
-					+ "\n\"x\","
-					+ "\n--\"y\", "
-					+ "\nx = 1, "
-					+ "\nf1, "
-					+ "\n[30] = 23, "
-					+ "\n45 } "
-					+ "\nreturn a";
-			show(input);
-			List<LuaValue> ret = interpret(input);
-			show(ret);
-			List<LuaValue> expectedList = new ArrayList<>();
-			LuaTable expected = new LuaTable();
-			expectedList.add(expected);
-			expected.putImplicit(new LuaString("x"));
-			expected.putImplicit(new LuaInt(777));
-			expected.putImplicit(new LuaInt(45));
-			expected.put(new LuaInt(30), new LuaInt(23));
-			expected.put(new LuaString("x"), new LuaInt(1));
-			expected.put(new LuaInt(777), LuaNil.nil);			
-			assertEquals(expectedList,ret);
-		}
-		
 		@Test
 		void table0() throws Exception {
 			String input = "a = {} return a";
@@ -439,7 +411,7 @@ import interpreter.StaticSemanticException;
 		
 		@Test
 		void table2() throws Exception {
-			String input = "a = {[\"x\"]= 2, [\"y\"]=3}";
+			String input = "a = {[\"x\"]= 2, [\"y\"]=3} return a";
 			show(input);
 			List<LuaValue> ret = interpret(input);
 			show(ret);			
@@ -453,7 +425,7 @@ import interpreter.StaticSemanticException;
 		
 		@Test
 		void table3() throws Exception {
-			String input = "a = {x=2, y=3}";
+			String input = "a = {x=2, y=3} return a";
 			show(input);
 			List<LuaValue> ret = interpret(input);
 			show(ret);
@@ -468,7 +440,7 @@ import interpreter.StaticSemanticException;
 		
 		@Test
 		void table4() throws Exception {
-			String input = "x = \"hello\" y= \"goodbye\" a = {[x]=2, [y]=3}";
+			String input = "x = \"hello\" y= \"goodbye\" a = {[x]=2, [y]=3} return a";
 			show(input);
 			List<LuaValue> ret = interpret(input);
 			show(ret);
@@ -477,6 +449,34 @@ import interpreter.StaticSemanticException;
 			expectedList.add(expected);
 			expected.put(new LuaString("hello"), new LuaInt(2));
 			expected.put(new LuaString("goodbye"), new LuaInt(3)); 	
+			assertEquals(expectedList,ret);
+		}
+		
+		
+		@Test
+		void table5() throws Exception {
+			String input = ""
+					+ "f1 = 777"
+					+ "\na = { [f1] = g, "
+					+ "\n\"x\","
+					+ "\n--\"y\", "
+					+ "\nx = 1, "
+					+ "\nf1, "
+					+ "\n[30] = 23, "
+					+ "\n45 } "
+					+ "\nreturn a";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			List<LuaValue> expectedList = new ArrayList<>();
+			LuaTable expected = new LuaTable();
+			expectedList.add(expected);
+			expected.putImplicit(new LuaString("x"));
+			expected.putImplicit(new LuaInt(777));
+			expected.putImplicit(new LuaInt(45));
+			expected.put(new LuaInt(30), new LuaInt(23));
+			expected.put(new LuaString("x"), new LuaInt(1));
+			expected.put(new LuaInt(777), LuaNil.nil);			
 			assertEquals(expectedList,ret);
 		}
 		
