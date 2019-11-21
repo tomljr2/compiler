@@ -75,6 +75,20 @@ public class Interpreter extends ASTVisitorAdapter{
 	public Object visitExpBin(ExpBinary expBin, Object arg) throws Exception {
 		LuaValue r1 = (LuaValue)expBin.e0.visit(this, arg); 
 		LuaValue r2 = (LuaValue)expBin.e1.visit(this, arg); 
+		if(expBin.op==KW_or)
+		{
+			if(r1!=LuaNil.nil && r1!=new LuaBoolean(false))
+				return r1;
+			else
+				return r2;
+		}
+		if(expBin.op==KW_and)
+		{
+			if(r1==LuaNil.nil && r1==new LuaBoolean(false))
+				return r1;
+			else
+				return r2;
+		}
 		if(!r1.getClass().equals(r2.getClass()))
 			throw new TypeException(expBin.firstToken,"Incompatible types from binary operator");
 		if(r1.getClass().equals(new LuaInt(0).getClass()))
@@ -130,7 +144,25 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitUnExp(ExpUnary unExp, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		LuaValue r = (LuaValue)unExp.e.visit(this, arg); 
+		if(unExp.op==KW_not || unExp.op==BIT_XOR)
+		{
+			if(r.getClass().equals(LuaBoolean.class) || r==LuaNil.nil)
+				return new LuaBoolean(true);
+			else
+				return new LuaBoolean(false);
+		}
+		if(unExp.op==OP_HASH)
+		{
+			if(r.getClass().equals(LuaString.class))
+				return new LuaInt((((LuaString)r).value).length());
+		}
+		if(unExp.op==OP_MINUS)
+		{
+			if(r.getClass().equals(LuaInt.class))
+				return new LuaInt(-((LuaInt)r).v);
+		}
+		throw new interpreter.StaticSemanticException(unExp.firstToken,"Unsupported operation");
 	}
 
 	@Override

@@ -415,6 +415,28 @@ import interpreter.StaticSemanticException;
 			assertEquals(expected,ret);			
 		}	
 		
+		
+		@Test
+		void unop() throws Exception {
+			String input = "x=-1 y=\"hello\" return x,#y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			List<LuaValue> expected = makeExpectedWithInts(-1,5);
+			assertEquals(expected,ret);			
+		}
+		
+		
+		@Test
+		void unop1() throws Exception {
+			String input = "a=false if x or ~a then do x=-1 y=\"hello\" end end return x,#y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			List<LuaValue> expected = makeExpectedWithInts(-1,5);
+			assertEquals(expected,ret);			
+		}
+		
 		@Test
 		void table0() throws Exception {
 			String input = "a = {} return a";
