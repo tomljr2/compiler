@@ -103,6 +103,18 @@ public class Interpreter extends ASTVisitorAdapter{
 				return new LuaInt(((LuaInt)r1).v<<((LuaInt)r2).v);
 			else if(expBin.op==DOTDOT)
 				return new LuaInt(Integer.parseInt(Integer.toString(((LuaInt)r1).v)+Integer.toString(((LuaInt)r2).v)));
+			else if(expBin.op==REL_EQEQ)
+				return new LuaBoolean(((LuaInt)r1).v==((LuaInt)r2).v);
+			else if(expBin.op==REL_NOTEQ)
+				return new LuaBoolean(((LuaInt)r1).v!=((LuaInt)r2).v);
+			else if(expBin.op==REL_GT)
+				return new LuaBoolean(((LuaInt)r1).v>((LuaInt)r2).v);
+			else if(expBin.op==REL_LT)
+				return new LuaBoolean(((LuaInt)r1).v<((LuaInt)r2).v);
+			else if(expBin.op==REL_GE)
+				return new LuaBoolean(((LuaInt)r1).v>=((LuaInt)r2).v);
+			else if(expBin.op==REL_LE)
+				return new LuaBoolean(((LuaInt)r1).v<=((LuaInt)r2).v);
 		}
 		if(r1.getClass().equals(new LuaString("").getClass()))
 		{
@@ -162,6 +174,8 @@ public class Interpreter extends ASTVisitorAdapter{
 			Object t = s.get(i).visit(this,((Object[])arg)[0]);
 			if(t!=null && t.getClass().equals(new ArrayList<RetStat>().getClass()))
 				return t;
+			if(s.get(i).getClass().equals(new StatBreak(null).getClass()))
+				return t;
 			if(s.get(i).getClass().equals(new StatGoto(null,null).getClass()))
 				break;
 		}
@@ -170,12 +184,12 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitStatBreak(StatBreak statBreak, Object arg, Object arg2) {
-		throw new UnsupportedOperationException();
+		return -1;
 	}
 
 	@Override
 	public Object visitStatBreak(StatBreak statBreak, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		return -1;
 	}
 
 	@Override
@@ -184,8 +198,6 @@ public class Interpreter extends ASTVisitorAdapter{
 			ArrayList<Block> l= (ArrayList<Block>)(_L.get(statGoto.name)[0]);
 			ArrayList<Block> gt = _GT.get(statGoto.hashCode());
 			
-	//		if(l.get(l.size()-1)==gt.get(gt.size()-1))
-	//			throw new interpreter.StaticSemanticException(statGoto.firstToken,"Incorrect goto usage.");
 			if(gt.contains(l.get(l.size()-1)))
 				return l.get(l.size()-1).visit(this, new Object[] {arg,(int)(_L.get(statGoto.name)[1])});
 			
@@ -204,7 +216,13 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitStatWhile(StatWhile statWhile, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		LuaBoolean condition = (LuaBoolean)statWhile.e.visit(this, arg);
+		while(condition.value)
+		{
+			statWhile.b.visit(this, new Object[] {arg,0});
+			condition = (LuaBoolean)statWhile.e.visit(this, arg);
+		}
+		return null;
 	}
 
 	@Override
@@ -341,7 +359,12 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitExpFunctionCall(ExpFunctionCall expFunctionCall, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		List<LuaValue> args = new ArrayList<>();
+		for(int i = 0; i < expFunctionCall.args.size();i++)
+			args.add((LuaValue) (expFunctionCall.args.get(i).visit(this, arg)));
+		((JavaFunction)expFunctionCall.f.visit(this, arg)).call(args);
+		return null;
+		//throw new UnsupportedOperationException();
 	}
 
 	@Override
