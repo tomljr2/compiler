@@ -626,10 +626,60 @@ import interpreter.StaticSemanticException;
 			a.put(new LuaInt(3),new LuaInt(3));
 			
 			LuaTable expected = new LuaTable();
-			expectedList.add(expected);
 			expected.put(new LuaInt(1), a);
+			expectedList.add(expected);
 			assertEquals(expectedList,ret);
 		}
 		
+		@Test 
+		void testSetField2() throws Exception{
+			String input = "a = {1,2,3} return a";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			LuaTable a = new LuaTable();
+			a.put(new LuaInt(1),new LuaInt(1));
+			a.put(new LuaInt(2),new LuaInt(2));
+			a.put(new LuaInt(3),new LuaInt(3));
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(a);
+			assertEquals(expected,ret);
+		}
+		
+		@Test 
+		void testSetField3() throws Exception{
+			String input = "a = {1,2,3} t= {a} return a,t";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			LuaTable a = new LuaTable();
+			a.put(new LuaInt(1),new LuaInt(1));
+			a.put(new LuaInt(2),new LuaInt(2));
+			a.put(new LuaInt(3),new LuaInt(3));
+			LuaTable t = new LuaTable();
+			t.put(new LuaInt(1),a);
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(a);
+			expected.add(t);
+			assertEquals(expected,ret);
+		}
+		
 
+		
+		@Test 
+		void testSetField4() throws Exception{
+			String input = "a = {1,2,3} t= {a} return t[1]";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			LuaTable a = new LuaTable();
+			a.put(new LuaInt(1),new LuaInt(1));
+			a.put(new LuaInt(2),new LuaInt(2));
+			a.put(new LuaInt(3),new LuaInt(3));
+			LuaTable t = new LuaTable();
+			t.put(new LuaInt(1),a);
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(a);
+			assertEquals(expected,ret);
+		}
 }

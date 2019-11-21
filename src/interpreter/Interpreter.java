@@ -3,6 +3,9 @@ package interpreter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.platform.commons.util.StringUtils;
+
 import java.util.HashMap; 
 import java.lang.Math;
 
@@ -136,8 +139,12 @@ public class Interpreter extends ASTVisitorAdapter{
 		{
 			if(expBin.op==OP_PLUS)
 			   return new LuaString(((LuaString)r1).value+((LuaString)r2).value);
-			if(expBin.op==DOTDOT)
+			else if(expBin.op==DOTDOT)
 				   return new LuaString(((LuaString)r1).value+((LuaString)r2).value);
+			else if(expBin.op==REL_EQEQ)
+				   return new LuaBoolean(((LuaString)r1).value.equals(((LuaString)r2).value));
+			else if(expBin.op==REL_NOTEQ)
+				   return new LuaBoolean(!((LuaString)r1).value.equals(((LuaString)r2).value));
 		}
 		throw new interpreter.StaticSemanticException(expBin.firstToken,"Unsupported operation");
 	}	
@@ -185,16 +192,9 @@ public class Interpreter extends ASTVisitorAdapter{
 			   Object o = f.visit(this, arg);
 			   if(f.getClass().equals(FieldImplicitKey.class))
 			      ret.putImplicit((LuaValue)o);
-			   else if(f.getClass().equals(FieldExpKey.class))
-			   {
+			   else if(f.getClass().equals(FieldExpKey.class) || f.getClass().equals(FieldNameKey.class))
 			      ret.put((LuaValue)((Object[])o)[0],(LuaValue)((Object[])o)[1]);
-			   }
-			   else if(o.getClass().equals(LuaString.class))
-			   {
-				   ret.put((LuaString)o, ((LuaTable)arg).get((LuaString)o));
-			   }
 		   }
-		
 		return ret;
 	}
 
@@ -369,7 +369,17 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitChunk(Chunk chunk, Object arg) throws Exception {
-		return chunk.block.visit(this, new Object[] {arg,0});
+		try {
+		   return chunk.block.visit(this, new Object[] {arg,0});
+		}
+		catch(Exception e)
+		{
+			if(e.getClass()!=interpreter.StaticSemanticException.class && 
+			   e.getClass()!=TypeException.class)
+			   throw new interpreter.StaticSemanticException(chunk.firstToken, "Error somewhere");
+			else
+				throw e;
+		}
 	}
 
 	@Override
@@ -379,9 +389,8 @@ public class Interpreter extends ASTVisitorAdapter{
 
 	@Override
 	public Object visitFieldNameKey(FieldNameKey fieldNameKey, Object arg) throws Exception {
-		((LuaTable)arg).put(new LuaString(fieldNameKey.name.name), 
-				(LuaValue)fieldNameKey.exp.visit(this, arg));
-		return new LuaString(fieldNameKey.name.name);
+		return new Object[] {new LuaString(fieldNameKey.name.name), 
+				(LuaValue)fieldNameKey.exp.visit(this, arg)};
 	}
 	
 	@Override
@@ -430,30 +439,49 @@ public class Interpreter extends ASTVisitorAdapter{
 		{
 			LuaValue r = (LuaValue)statAssign.expList.get(i).visit(this, arg);
 			Exp s = statAssign.varList.get(i);
-			LuaValue l = null;
+			LuaValue l = (LuaValue)statAssign.varList.get(i).visit(this, arg);
 			if(s.getClass().equals(ExpName.class))
 			   l = new LuaString(((ExpName)s).name);
 			else if(s.getClass().equals(ExpTableLookup.class))
-				l = (LuaValue)s.visit(this, new Object[] {arg,r});
+			   l = (LuaValue)s.visit(this, new Object[] {arg,r});
 			LuaValue[] lr= new LuaValue[]{l,r};
 			temp.add(lr);
 		}
 		for(int i = 0; i < temp.size(); i++)
 			((LuaTable)arg).put(temp.get(i)[0], temp.get(i)[1]);
-		return ((LuaTable)arg).copy();
+		return ((LuaTable)arg);
 	}
 
 	@Override
 	public Object visitExpTableLookup(ExpTableLookup expTableLookup, Object arg) throws Exception {
 		if(!arg.getClass().equals(Object[].class))
 		{
-			LuaString q = new LuaString(((ExpString)(expTableLookup.key)).v);
-			LuaTable t = ((LuaTable)expTableLookup.table.visit(this, arg));
+			LuaValue q;
+			if(expTableLookup.key.getClass().equals(ExpString.class))
+			{
+				try
+				{
+					Integer i = Integer.parseInt(((ExpString)(expTableLookup.key)).v);
+					q=new LuaInt(i);
+				}
+				catch(NumberFormatException e)
+				{
+					q=new LuaString(((ExpString)(expTableLookup.key)).v);
+				}
+				catch(NullPointerException e)
+				{
+					throw new interpreter.StaticSemanticException(expTableLookup.firstToken, "Invalid table lookup");
+				}
+			}
+			else if(expTableLookup.key.getClass().equals(ExpInt.class))
+			   q = new LuaInt(((ExpInt)(expTableLookup.key)).v);
+			else
+				throw new interpreter.StaticSemanticException(expTableLookup.firstToken, "Invalid table lookup");
+			LuaTable t = ((LuaTable)((expTableLookup.table).visit(this, arg)));
 		    return t.get(q);
 		}
 		else
 		{
-			System.out.println(expTableLookup.key);
 			LuaValue q = (LuaValue)(((LuaTable)(((Object[])arg)[0])).get
 					((LuaValue)(expTableLookup.key.visit(this, ((Object[])arg)[0]))));
 			LuaTable t = ((LuaTable)expTableLookup.table.visit(this, ((Object[])arg)[0]));
@@ -469,7 +497,6 @@ public class Interpreter extends ASTVisitorAdapter{
 			args.add((LuaValue) (expFunctionCall.args.get(i).visit(this, arg)));
 		((JavaFunction)expFunctionCall.f.visit(this, arg)).call(args);
 		return null;
-		//throw new UnsupportedOperationException();
 	}
 
 	@Override
