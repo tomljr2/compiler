@@ -382,6 +382,39 @@ import interpreter.StaticSemanticException;
 			assertEquals(expected,ret);			
 		}	
 		
+		
+		@Test
+		void whilebreak2() throws Exception {
+			String input = "y = 0 x=0 while y<5 do while true do do break end x = 1 end y=y+1 end return x,y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			List<LuaValue> expected = makeExpectedWithInts(0,5);
+			assertEquals(expected,ret);			
+		}	
+		
+		
+		@Test
+		void repeat0() throws Exception {
+			String input = "y=0 repeat do y=y+1 end until y==5 return y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			List<LuaValue> expected = makeExpectedWithInts(5);
+			assertEquals(expected,ret);			
+		}	
+		
+		
+		@Test
+		void repeat1() throws Exception {
+			String input = "y=0 repeat do y=y+1 if y==3 then do break end end end until y==5 return y";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);
+			List<LuaValue> expected = makeExpectedWithInts(3);
+			assertEquals(expected,ret);			
+		}	
+		
 		@Test
 		void table0() throws Exception {
 			String input = "a = {} return a";

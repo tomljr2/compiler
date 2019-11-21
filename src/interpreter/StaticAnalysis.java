@@ -155,14 +155,13 @@ public class StaticAnalysis implements ASTVisitor{
 
 	@Override
 	public Object visitStatWhile(StatWhile statWhile, Object arg) throws Exception {
-		// TODO Auto-generated method stub
 		statWhile.b.visit(this,arg);
 		return null;
 	}
 
 	@Override
 	public Object visitStatRepeat(StatRepeat statRepeat, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		statRepeat.b.visit(this,arg);
 		return null;
 	}
 

@@ -23,7 +23,7 @@ public class Interpreter extends ASTVisitorAdapter{
 	LuaTable _G; //global environment
 	HashMap<Name,Object[]> _L;
 	HashMap<Integer,ArrayList<Block>> _GT;
-	Boolean inWhile;
+	Boolean inLoop;
 	
 
 	/* Instantiates and initializes global environment
@@ -46,7 +46,7 @@ public class Interpreter extends ASTVisitorAdapter{
 		init_G();
 		_L = new HashMap<>();
 		_GT = new HashMap<>();
-		inWhile=false;
+		inLoop=false;
 	}
 	
 
@@ -237,17 +237,17 @@ public class Interpreter extends ASTVisitorAdapter{
 	public Object visitStatDo(StatDo statDo, Object arg) throws Exception {
 		Object t = statDo.b.visit(this, new Object[] {arg,0});
 		if(t!=null && t.getClass().equals(Integer.class))
-			if((Integer)t==-1 && !inWhile)
+			if((Integer)t==-1 && !inLoop)
 				return null;
-			else if((Integer)t==-1 && inWhile)
+			else if((Integer)t==-1 && inLoop)
 				return -1;
 		return t;
 	}
 
 	@Override
 	public Object visitStatWhile(StatWhile statWhile, Object arg) throws Exception {
-		Boolean wasInWhile = inWhile;
-		inWhile=true;
+		Boolean wasInLoop = inLoop;
+		inLoop=true;
 		LuaBoolean condition = (LuaBoolean)statWhile.e.visit(this, arg);
 		while(condition.value)
 		{
@@ -258,14 +258,28 @@ public class Interpreter extends ASTVisitorAdapter{
 			      break;
 			condition = (LuaBoolean)statWhile.e.visit(this, arg);
 		}
-		if(!wasInWhile)
-			inWhile=false;
+		if(!wasInLoop)
+			inLoop=false;
 		return null;
 	}
 
 	@Override
 	public Object visitStatRepeat(StatRepeat statRepeat, Object arg) throws Exception {
-		throw new UnsupportedOperationException();
+		Boolean wasInLoop = inLoop;
+		inLoop=true;
+		LuaBoolean condition = new LuaBoolean(false);
+		while(!condition.value)
+		{
+			Object t=statRepeat.b.visit(this, new Object[] {arg,0});
+			
+			if(t!=null && t.getClass().equals(Integer.class))
+			   if((Integer)t==-1)
+			      break;
+			condition = (LuaBoolean)statRepeat.e.visit(this, arg);
+		}
+		if(!wasInLoop)
+			inLoop=false;
+		return null;
 	}
 
 	@Override
