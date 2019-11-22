@@ -682,4 +682,43 @@ import interpreter.StaticSemanticException;
 			expected.add(a);
 			assertEquals(expected,ret);
 		}
+		
+		@Test 
+		void testAssign() throws Exception{
+			String input = "a,b,c=1,2,3 return a,b,c";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaInt(1));
+			expected.add(new LuaInt(2));
+			expected.add(new LuaInt(3));
+			assertEquals(expected,ret);
+		}
+		
+		@Test 
+		void testAssign1() throws Exception{
+			String input = "a,b,c=1,2 return a,b,c";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaInt(1));
+			expected.add(new LuaInt(2));
+			expected.add(LuaNil.nil);
+			assertEquals(expected,ret);
+		}
+		
+		@Test 
+		void testAssign2() throws Exception{
+			String input = "a,b,c=1,2,3,4 return a,b,c";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaInt(1));
+			expected.add(new LuaInt(2));
+			expected.add(new LuaInt(3));
+			assertEquals(expected,ret);
+		}
 }
