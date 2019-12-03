@@ -13,6 +13,8 @@ import cop5556fa19.Parser;
 import cop5556fa19.Scanner;
 import cop5556fa19.AST.*;
 import static cop5556fa19.Token.Kind.*;
+
+import interpreter.LuaTable.IllegalTableKeyException;
 import interpreter.built_ins.print;
 import interpreter.built_ins.println;
 import interpreter.built_ins.toNumber;
@@ -92,6 +94,13 @@ public class Interpreter extends ASTVisitorAdapter{
 			else
 				return r2;
 		}
+		
+		if (((r1.getClass().equals(LuaInt.class) && r2.getClass().equals(LuaString.class))) && expBin.op==DOTDOT)
+			return new LuaString(Integer.toString(((LuaInt)r1).v)+((LuaString)r2).value);
+
+		if (((r2.getClass().equals(LuaInt.class) && r1.getClass().equals(LuaString.class))) && expBin.op==DOTDOT)
+			return new LuaString(((LuaString)r1).value+Integer.toString(((LuaInt)r2).v));
+		
 		if(!r1.getClass().equals(r2.getClass()))
 			throw new TypeException(expBin.firstToken,"Incompatible types from binary operator");
 		if(r1.getClass().equals(new LuaInt(0).getClass()))
@@ -375,7 +384,8 @@ public class Interpreter extends ASTVisitorAdapter{
 		catch(Exception e)
 		{
 			if(e.getClass()!=interpreter.StaticSemanticException.class && 
-			   e.getClass()!=TypeException.class)
+			   e.getClass()!=TypeException.class && e.getClass()!=IllegalTableKeyException.class
+			   && e.getClass()!=NumberFormatException.class)
 			   throw new interpreter.StaticSemanticException(chunk.firstToken, "Error somewhere");
 			else
 				throw e;
@@ -493,10 +503,16 @@ public class Interpreter extends ASTVisitorAdapter{
 	@Override
 	public Object visitExpFunctionCall(ExpFunctionCall expFunctionCall, Object arg) throws Exception {
 		List<LuaValue> args = new ArrayList<>();
+		List<LuaValue> l = new ArrayList<>();
 		for(int i = 0; i < expFunctionCall.args.size();i++)
 			args.add((LuaValue) (expFunctionCall.args.get(i).visit(this, arg)));
-		((JavaFunction)expFunctionCall.f.visit(this, arg)).call(args);
-		return null;
+		   if(((JavaFunction)expFunctionCall.f.visit(this, arg)).call(args)!=null)
+			   l.addAll(((JavaFunction)expFunctionCall.f.visit(this, arg)).call(args));
+		  
+		if(l.isEmpty())
+		   return LuaNil.nil;
+		else
+			return l.get(l.size()-1);
 	}
 
 	@Override

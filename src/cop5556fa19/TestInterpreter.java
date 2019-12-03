@@ -19,6 +19,7 @@ import interpreter.LuaInt;
 import interpreter.LuaNil;
 import interpreter.LuaString;
 import interpreter.LuaTable;
+import interpreter.LuaTable.IllegalTableKeyException;
 import interpreter.LuaValue;
 import interpreter.StaticSemanticException;
 
@@ -720,5 +721,81 @@ import interpreter.StaticSemanticException;
 			expected.add(new LuaInt(2));
 			expected.add(new LuaInt(3));
 			assertEquals(expected,ret);
+		}
+		
+		@Test 
+		void test0() throws Exception{
+			String input = "a = {[2]=3} a[6]=7 return a";
+			show(input);
+			assertThrows(IllegalTableKeyException.class,()->{
+				List<LuaValue> ret = interpret(input);
+			});	
+		}
+		
+		@Test 
+		void test1() throws Exception{
+			String input = "x = { \nprint(\n\"This is returning nothing. Should this throw?\"\n) \n} return x";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaTable());
+			assertEquals(ret,expected);
+		}
+		
+		@Test 
+		void test2() throws Exception{
+			String input = "a = toNumber('invalid number')";
+			show(input);
+			assertThrows(NumberFormatException.class,()->{
+				List<LuaValue> ret = interpret(input);
+			});	
+		}
+		
+		@Test 
+		void test3() throws Exception{
+			String input = "a=toNumber(\"2\"); return 1+a";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaInt(3));
+			assertEquals(ret,expected);
+		}
+		
+		@Test 
+		void test4() throws Exception{
+			String input = "return 123 .. \" one two three\"";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaString("123 one two three"));
+			assertEquals(ret,expected);
+		}
+		
+
+		
+		@Test 
+		void test5() throws Exception{
+			String input = "return (100+20+3) .. \" one two three\"";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaString("123 one two three"));
+			assertEquals(ret,expected);
+		}
+
+		
+		@Test 
+		void test6() throws Exception{
+			String input = "a = toNumber(\"33\"); return a";
+			show(input);
+			List<LuaValue> ret = interpret(input);
+			show(ret);	
+			List<LuaValue> expected = new ArrayList<>();
+			expected.add(new LuaInt(33));
+			assertEquals(ret,expected);
 		}
 }

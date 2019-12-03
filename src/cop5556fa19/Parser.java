@@ -769,6 +769,10 @@ public class Parser {
 				Exp e0 = exp();
 				f = new FieldNameKey(first,new Name(name,name.text),e0);
 			}
+			else if(isKind(LPAREN))
+			{
+				f = new FieldImplicitKey(first,pt(first,new ExpName(name)));
+			}
 			else
 			{
 				f = new FieldImplicitKey(first,new ExpName(name));
